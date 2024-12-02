@@ -21,7 +21,7 @@ pub fn part1(input: &str) -> u32 {
         .sum()
 }
 
-pub fn parse(input: &str) -> [Vec<u32>; 2] {
+pub fn parse(input: &str) -> [Box<[u32]>; 2] {
     let input = input.trim();
     let input_bytes = input.as_bytes();
     match input.len() {
@@ -32,33 +32,30 @@ pub fn parse(input: &str) -> [Vec<u32>; 2] {
 }
 
 const PRECISE_RN_PATH_LEN: usize = 1000 * 15 - 2;
-fn rn_precise_path(input: &[u8; PRECISE_RN_PATH_LEN]) -> [Vec<u32>; 2] {
+fn rn_precise_path(input: &[u8; PRECISE_RN_PATH_LEN]) -> [Box<[u32]>; 2] {
     precise_path_n(input, 15)
 }
 
 const PRECISE_NL_PATH_LEN: usize = 1000 * 14 - 1;
-fn nl_precise_path(input: &[u8; PRECISE_NL_PATH_LEN]) -> [Vec<u32>; 2] {
+fn nl_precise_path(input: &[u8; PRECISE_NL_PATH_LEN]) -> [Box<[u32]>; 2] {
     precise_path_n(input, 14)
 }
 
-fn precise_path_n<const LEN: usize>(input: &[u8; LEN], line_len: usize) -> [Vec<u32>; 2] {
-    let mut lhs_list = Vec::<u32>::with_capacity(1000);
-    let mut rhs_list = Vec::<u32>::with_capacity(1000);
+fn precise_path_n<const LEN: usize>(input: &[u8; LEN], line_len: usize) -> [Box<[u32]>; 2] {
+    let mut lhs_list = Box::new_uninit_slice(1000);
+    let mut rhs_list = Box::new_uninit_slice(1000);
 
     for len in 0..1000 {
         let i = len * line_len;
         let lhs = parse_int5(input[i..i + 5].try_into().unwrap());
         let rhs = parse_int5(input[i + 8..i + 13].try_into().unwrap());
-        unsafe { lhs_list.as_mut_ptr().add(len).write(lhs) };
-        unsafe { rhs_list.as_mut_ptr().add(len).write(rhs) };
+        unsafe { lhs_list.as_mut_ptr().cast::<u32>().add(len).write(lhs) };
+        unsafe { rhs_list.as_mut_ptr().cast::<u32>().add(len).write(rhs) };
     }
-    unsafe { lhs_list.set_len(1000) };
-    unsafe { rhs_list.set_len(1000) };
-
-    [lhs_list, rhs_list]
+    [lhs_list, rhs_list].map(|list| unsafe { list.assume_init() })
 }
 
-fn parse_generic(input: &str) -> [Vec<u32>; 2] {
+fn parse_generic(input: &str) -> [Box<[u32]>; 2] {
     let mut lhs_list = Vec::with_capacity(1000);
     let mut rhs_list = Vec::with_capacity(1000);
 
@@ -67,7 +64,7 @@ fn parse_generic(input: &str) -> [Vec<u32>; 2] {
         lhs_list.push(lhs);
         rhs_list.push(rhs);
     }
-    [lhs_list, rhs_list]
+    [lhs_list.into(), rhs_list.into()]
 }
 
 pub fn parse_line(line: &str) -> [u32; 2] {
