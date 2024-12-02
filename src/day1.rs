@@ -33,8 +33,8 @@ pub fn parse(input: &str) -> [Vec<u32>; 2] {
 
 const PRECISE_RN_PATH_LEN: usize = 1000 * 15 - 2;
 fn part1_rn_precise_path(input: &[u8; PRECISE_RN_PATH_LEN]) -> [Vec<u32>; 2] {
-    let mut lhs_list = vec![];
-    let mut rhs_list = vec![];
+    let mut lhs_list = Vec::with_capacity(1000);
+    let mut rhs_list = Vec::with_capacity(1000);
 
     for i in 0..1000 {
         let i = i * 15;
@@ -48,8 +48,8 @@ fn part1_rn_precise_path(input: &[u8; PRECISE_RN_PATH_LEN]) -> [Vec<u32>; 2] {
 
 const PRECISE_NL_PATH_LEN: usize = 1000 * 14 - 1;
 fn part1_nl_precise_path(input: &[u8; PRECISE_NL_PATH_LEN]) -> [Vec<u32>; 2] {
-    let mut lhs_list = vec![];
-    let mut rhs_list = vec![];
+    let mut lhs_list = Vec::with_capacity(1000);
+    let mut rhs_list = Vec::with_capacity(1000);
 
     for i in 0..1000 {
         let i = i * 14;
@@ -62,8 +62,8 @@ fn part1_nl_precise_path(input: &[u8; PRECISE_NL_PATH_LEN]) -> [Vec<u32>; 2] {
 }
 
 fn part1_parse_generic(input: &str) -> [Vec<u32>; 2] {
-    let mut lhs_list = vec![];
-    let mut rhs_list = vec![];
+    let mut lhs_list = Vec::with_capacity(1000);
+    let mut rhs_list = Vec::with_capacity(1000);
 
     for line in input.lines() {
         let [lhs, rhs] = parse_line(line);
