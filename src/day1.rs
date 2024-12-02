@@ -1,11 +1,3 @@
-pub const EXAMPLE_1: &str = "
-3   4
-4   3
-2   5
-1   3
-3   9
-3   3";
-
 pub fn part1(input: &str) -> u32 {
     let [mut lhs_list, mut rhs_list] = parse(input.trim());
 
@@ -90,7 +82,8 @@ fn parse_int5(bytes: &[u8; 5]) -> u32 {
 
 #[test]
 fn part1_example() {
-    assert_eq!(part1(EXAMPLE_1), 11);
+    let input = include_str!("../input/day1_part1_example");
+    assert_eq!(part1(input), 11);
 }
 
 #[test]
@@ -118,7 +111,8 @@ pub fn part2(input: &str) -> u32 {
 
 #[test]
 fn part2_example() {
-    assert_eq!(part2(EXAMPLE_1), 31);
+    let input = include_str!("../input/day1_part1_example");
+    assert_eq!(part2(input), 31);
 }
 
 #[test]
