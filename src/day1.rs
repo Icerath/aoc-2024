@@ -25,43 +25,40 @@ pub fn parse(input: &str) -> [Vec<u32>; 2] {
     let input = input.trim();
     let input_bytes = input.as_bytes();
     match input.len() {
-        PRECISE_RN_PATH_LEN => part1_rn_precise_path(input_bytes.try_into().unwrap()),
-        PRECISE_NL_PATH_LEN => part1_nl_precise_path(input_bytes.try_into().unwrap()),
-        _ => part1_parse_generic(input),
+        PRECISE_RN_PATH_LEN => rn_precise_path(input_bytes.try_into().unwrap()),
+        PRECISE_NL_PATH_LEN => nl_precise_path(input_bytes.try_into().unwrap()),
+        _ => parse_generic(input),
     }
 }
 
 const PRECISE_RN_PATH_LEN: usize = 1000 * 15 - 2;
-fn part1_rn_precise_path(input: &[u8; PRECISE_RN_PATH_LEN]) -> [Vec<u32>; 2] {
-    let mut lhs_list = Vec::with_capacity(1000);
-    let mut rhs_list = Vec::with_capacity(1000);
-
-    for i in 0..1000 {
-        let i = i * 15;
-        let lhs = parse_int5(input[i..i + 5].try_into().unwrap());
-        let rhs = parse_int5(input[i + 8..i + 13].try_into().unwrap());
-        lhs_list.push(lhs);
-        rhs_list.push(rhs);
-    }
-    [lhs_list, rhs_list]
+fn rn_precise_path(input: &[u8; PRECISE_RN_PATH_LEN]) -> [Vec<u32>; 2] {
+    precise_path_n(input, 15)
 }
 
 const PRECISE_NL_PATH_LEN: usize = 1000 * 14 - 1;
-fn part1_nl_precise_path(input: &[u8; PRECISE_NL_PATH_LEN]) -> [Vec<u32>; 2] {
-    let mut lhs_list = Vec::with_capacity(1000);
-    let mut rhs_list = Vec::with_capacity(1000);
+fn nl_precise_path(input: &[u8; PRECISE_NL_PATH_LEN]) -> [Vec<u32>; 2] {
+    precise_path_n(input, 14)
+}
 
-    for i in 0..1000 {
-        let i = i * 14;
+fn precise_path_n<const LEN: usize>(input: &[u8; LEN], line_len: usize) -> [Vec<u32>; 2] {
+    let mut lhs_list = Vec::<u32>::with_capacity(1000);
+    let mut rhs_list = Vec::<u32>::with_capacity(1000);
+
+    for len in 0..1000 {
+        let i = len * line_len;
         let lhs = parse_int5(input[i..i + 5].try_into().unwrap());
         let rhs = parse_int5(input[i + 8..i + 13].try_into().unwrap());
-        lhs_list.push(lhs);
-        rhs_list.push(rhs);
+        unsafe { lhs_list.as_mut_ptr().add(len).write(lhs) };
+        unsafe { rhs_list.as_mut_ptr().add(len).write(rhs) };
     }
+    unsafe { lhs_list.set_len(1000) };
+    unsafe { rhs_list.set_len(1000) };
+
     [lhs_list, rhs_list]
 }
 
-fn part1_parse_generic(input: &str) -> [Vec<u32>; 2] {
+fn parse_generic(input: &str) -> [Vec<u32>; 2] {
     let mut lhs_list = Vec::with_capacity(1000);
     let mut rhs_list = Vec::with_capacity(1000);
 
