@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 pub const EXAMPLE_1: &str = "
 3   4
 4   3
@@ -109,16 +107,19 @@ fn part1_input() {
 }
 
 pub fn part2(input: &str) -> u32 {
+    // I hate this with a passion but it's fast :/
+    static mut MAP: [u8; 100_000] = [0; 100_000];
+
     let [lhs_list, rhs_list] = parse(input.trim());
-    let mut rhs_counts = HashMap::<u32, u16>::with_capacity(1000);
+    let map_ptr = (&raw mut MAP).cast::<u8>();
 
     for val in rhs_list {
-        *rhs_counts.entry(val).or_default() += 1;
+        unsafe { *map_ptr.add(val as usize) += 1 };
     }
 
     let mut score = 0;
     for val in lhs_list {
-        score += val * rhs_counts.get(&val).copied().unwrap_or(0) as u32;
+        score += val * unsafe { map_ptr.add(val as usize).read() } as u32;
     }
     score
 }
