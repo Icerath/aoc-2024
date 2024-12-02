@@ -12,11 +12,7 @@ pub fn part1(input: &str) -> u32 {
     lhs_list.sort_unstable();
     rhs_list.sort_unstable();
 
-    lhs_list
-        .iter()
-        .zip(rhs_list)
-        .map(|(lhs, rhs)| lhs.abs_diff(rhs))
-        .sum()
+    lhs_list.iter().zip(rhs_list).map(|(lhs, rhs)| lhs.abs_diff(rhs)).sum()
 }
 
 pub fn parse(input: &str) -> [Box<[u32]>; 2] {
@@ -72,10 +68,7 @@ pub fn parse_line(line: &str) -> [u32; 2] {
             let rhs = parse_int5(line.as_bytes()[8..13].try_into().unwrap());
             [lhs, rhs]
         }
-        5 => [
-            (line.as_bytes()[0] - b'0') as u32,
-            (line.as_bytes()[4] - b'0') as u32,
-        ],
+        5 => [(line.as_bytes()[0] - b'0') as u32, (line.as_bytes()[4] - b'0') as u32],
         _ => {
             let (lhs, rhs) = line.split_once("   ").unwrap();
             [lhs, rhs].map(|num| num.parse().unwrap())
