@@ -7,7 +7,7 @@ pub fn part1(input: &str) -> u32 {
     lhs_list.iter().zip(rhs_list).map(|(lhs, rhs)| lhs.abs_diff(rhs)).sum()
 }
 
-pub fn parse(input: &str) -> [Box<[u32]>; 2] {
+fn parse(input: &str) -> [Box<[u32]>; 2] {
     let input = input.trim();
     let input_bytes = input.as_bytes();
     match input.len() {
@@ -53,7 +53,7 @@ fn parse_generic(input: &str) -> [Box<[u32]>; 2] {
     [lhs_list.into(), rhs_list.into()]
 }
 
-pub fn parse_line(line: &str) -> [u32; 2] {
+fn parse_line(line: &str) -> [u32; 2] {
     match line.len() {
         13 => {
             let lhs = parse_int5(line.as_bytes()[0..5].try_into().unwrap());
