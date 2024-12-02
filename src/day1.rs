@@ -81,7 +81,10 @@ pub fn parse_line(line: &str) -> [u32; 2] {
             let rhs = parse_int5(line.as_bytes()[8..13].try_into().unwrap());
             [lhs, rhs]
         }
-        5 => [(line.as_bytes()[0]) as u32, (line.as_bytes()[4]) as u32],
+        5 => [
+            (line.as_bytes()[0] - b'0') as u32,
+            (line.as_bytes()[4] - b'0') as u32,
+        ],
         _ => {
             let (lhs, rhs) = line.split_once("   ").unwrap();
             [lhs, rhs].map(|num| num.parse().unwrap())
@@ -90,11 +93,15 @@ pub fn parse_line(line: &str) -> [u32; 2] {
 }
 
 fn parse_int5(bytes: &[u8; 5]) -> u32 {
-    bytes[0] as u32 * 10000
-        + bytes[1] as u32 * 1000
-        + bytes[2] as u32 * 100
-        + bytes[3] as u32 * 10
-        + bytes[4] as u32
+    let zero = b'0' as u32;
+    let offset = zero * 10000 + zero * 1000 + zero * 100 + zero * 10 + zero;
+
+    (bytes[0] as u32 * 10000
+        + (bytes[1]) as u32 * 1000
+        + (bytes[2]) as u32 * 100
+        + (bytes[3]) as u32 * 10
+        + (bytes[4]) as u32)
+        - offset
 }
 
 #[test]
@@ -108,18 +115,17 @@ fn part1_input() {
     assert_eq!(part1(input), 2086478);
 }
 
-pub fn part2(input: &str) -> i32 {
-    let mut lhs_list = vec![];
-    let mut rhs_counts = HashMap::<i32, i32>::new();
-    for line in input.trim().lines() {
-        let (lhs, rhs) = line.split_once("   ").unwrap();
-        lhs_list.push(lhs.parse::<i32>().unwrap());
-        *rhs_counts.entry(rhs.parse().unwrap()).or_default() += 1;
+pub fn part2(input: &str) -> u32 {
+    let [lhs_list, rhs_list] = parse(input.trim());
+    let mut rhs_counts = HashMap::<u32, u16>::with_capacity(1000);
+
+    for val in rhs_list {
+        *rhs_counts.entry(val).or_default() += 1;
     }
 
     let mut score = 0;
     for val in lhs_list {
-        score += val * rhs_counts.get(&val).unwrap_or(&0);
+        score += val * rhs_counts.get(&val).copied().unwrap_or(0) as u32;
     }
     score
 }
