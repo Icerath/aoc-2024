@@ -107,11 +107,10 @@ fn part1_input() {
 }
 
 pub fn part2(input: &str) -> u32 {
-    // I hate this with a passion but it's fast :/
-    static mut MAP: [u8; 100_000] = [0; 100_000];
+    let mut map = [0u8; 100_000];
 
     let [lhs_list, rhs_list] = parse(input.trim());
-    let map_ptr = (&raw mut MAP).cast::<u8>();
+    let map_ptr = map.as_mut_ptr();
 
     for val in rhs_list {
         unsafe { *map_ptr.add(val as usize) += 1 };
