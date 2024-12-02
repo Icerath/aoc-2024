@@ -8,26 +8,19 @@ pub fn part1(input: &str) -> u32 {
 }
 
 fn parse(input: &str) -> [Box<[u32]>; 2] {
+    const PRECISE_RN: usize = 1000 * 15 - 2;
+    const PRECISE_NL: usize = 1000 * 14 - 1;
+
     let input = input.trim();
     let input_bytes = input.as_bytes();
     match input.len() {
-        PRECISE_RN_PATH_LEN => rn_precise_path(input_bytes.try_into().unwrap()),
-        PRECISE_NL_PATH_LEN => nl_precise_path(input_bytes.try_into().unwrap()),
+        PRECISE_NL => precise_path::<PRECISE_NL>(input_bytes.try_into().unwrap(), 14),
+        PRECISE_RN => precise_path::<PRECISE_RN>(input_bytes.try_into().unwrap(), 15),
         _ => parse_generic(input),
     }
 }
 
-const PRECISE_RN_PATH_LEN: usize = 1000 * 15 - 2;
-fn rn_precise_path(input: &[u8; PRECISE_RN_PATH_LEN]) -> [Box<[u32]>; 2] {
-    precise_path_n(input, 15)
-}
-
-const PRECISE_NL_PATH_LEN: usize = 1000 * 14 - 1;
-fn nl_precise_path(input: &[u8; PRECISE_NL_PATH_LEN]) -> [Box<[u32]>; 2] {
-    precise_path_n(input, 14)
-}
-
-fn precise_path_n<const LEN: usize>(input: &[u8; LEN], line_len: usize) -> [Box<[u32]>; 2] {
+fn precise_path<const LEN: usize>(input: &[u8; LEN], line_len: usize) -> [Box<[u32]>; 2] {
     let mut lhs_list = Box::new_uninit_slice(1000);
     let mut rhs_list = Box::new_uninit_slice(1000);
 
