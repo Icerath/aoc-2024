@@ -7,7 +7,7 @@ fn bench_part1(c: &mut Criterion) {
 }
 
 fn bench_part2(c: &mut Criterion) {
-    let input = include_str!("../input/day1_part1");
+    let input = include_str!("../input/day2_part1");
     c.bench_function("day2_part2", |b| b.iter(|| part2(black_box(input))));
 }
 
