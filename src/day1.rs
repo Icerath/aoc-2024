@@ -9,8 +9,7 @@ pub const EXAMPLE_1: &str = "
 3   3";
 
 pub fn part1(input: &str) -> u32 {
-    let input = input.trim();
-    let [mut lhs_list, mut rhs_list] = parse(input);
+    let [mut lhs_list, mut rhs_list] = parse(input.trim());
 
     lhs_list.sort_unstable();
     rhs_list.sort_unstable();
