@@ -119,11 +119,11 @@ fn is_record_safe(mut record: impl Iterator<Item = u8>) -> u8 {
     0
 }
 
-// #[test]
-// fn test_part2_example() {
-//     let input = include_str!("../input/day2_part1_example");
-//     assert_eq!(part2(input), 4);
-// }
+#[test]
+fn test_part2_example() {
+    let input = include_str!("../input/day2_part1_example");
+    assert_eq!(part2(input), 4);
+}
 
 #[test]
 fn test_part2_input() {
