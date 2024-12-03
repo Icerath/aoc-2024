@@ -1,26 +1,37 @@
 use tinyvec::ArrayVec;
 
 pub fn part1(input: &str) -> u32 {
-    input
-        .as_bytes()
-        .split(|c| *c == b'\n')
-        .map(|line| {
-            let record = line.split(|c| *c == b' ').map(parse_int);
-            (is_record_safe(record) == 0) as u32
-        })
-        .sum()
-}
+    let input = input.as_bytes();
+    let mut safe_records = 0u32;
+    let mut i = 0;
 
-#[inline(always)]
-fn parse_int(bytes: &[u8]) -> u8 {
-    unsafe {
-        std::hint::assert_unchecked(bytes.len() <= 2);
+    while i < input.len() {
+        let mut numbers = ArrayVec::<[u8; 8]>::new();
+
+        while i < input.len() && input[i] != b'\n' {
+            let is_single_digit = i + 1 == input.len() || matches!(input[i + 1], b' ' | b'\n');
+            let num = if is_single_digit {
+                input[i] - b'0'
+            } else {
+                (input[i] - b'0') * 10 + input[i + 1] - b'0'
+            };
+            i += (!is_single_digit) as usize + 1;
+
+            unsafe {
+                *numbers.as_mut_ptr().add(numbers.len()) = num;
+                numbers.set_len(numbers.len() + 1);
+            }
+            if i < input.len() && input[i] == b' ' {
+                i += 1;
+            }
+        }
+        // skip newline
+        i += 1;
+
+        safe_records += (is_record_safe(numbers.iter().copied()) == 0) as u32;
     }
-    match bytes.len() {
-        1 => bytes[0] - b'0',
-        2 => (bytes[0] - b'0') * 10 + bytes[1] - b'0',
-        _ => unreachable!(),
-    }
+
+    safe_records
 }
 
 #[test]
