@@ -1,3 +1,5 @@
+use bstr::ByteSlice;
+
 pub fn part1(input: &str) -> u32 {
     let input = input.as_bytes();
     let mut sum = 0;
@@ -45,4 +47,49 @@ fn test_part1_example() {
 fn test_part1_input() {
     let input = include_str!("../input/day3_part1");
     assert_eq!(part1(input), 171_183_089);
+}
+
+pub fn part2(input: &str) -> u32 {
+    let input = input.as_bytes();
+    let mut sum = 0;
+    let mut remaining = input;
+    while !remaining.is_empty() {
+        if remaining.starts_with(b"do()") {
+            remaining = &remaining[4..];
+        } else if remaining.starts_with(b"don't()") {
+            remaining = &remaining[6..];
+            let Some(skip) = remaining.find(b"do()") else { break };
+            remaining = &remaining[skip..];
+        }
+
+        if !remaining.starts_with(b"mul(") {
+            remaining = &remaining[1..];
+            continue;
+        }
+        remaining = &remaining[4..];
+        let Some(lhs) = parse_num(&mut remaining) else { continue };
+        if remaining[0] != b',' {
+            continue;
+        }
+        remaining = &remaining[1..];
+        let Some(rhs) = parse_num(&mut remaining) else { continue };
+        if remaining[0] != b')' {
+            continue;
+        }
+        remaining = &remaining[1..];
+        sum += lhs * rhs;
+    }
+    sum
+}
+
+#[test]
+fn test_part2_example() {
+    let example = include_str!("../input/day3_part2_example");
+    assert_eq!(part2(example), 48);
+}
+
+#[test]
+fn test_part2_input() {
+    let example = include_str!("../input/day3_part1");
+    assert_eq!(part2(example), 63_866_497);
 }
