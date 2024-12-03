@@ -61,6 +61,7 @@ fn parse_line(line: &str) -> [u32; 2] {
     }
 }
 
+#[expect(clippy::trivially_copy_pass_by_ref)]
 fn parse_int5(bytes: &[u8; 5]) -> u32 {
     let zero = b'0' as u32;
     let offset = zero * 10000 + zero * 1000 + zero * 100 + zero * 10 + zero;
@@ -82,7 +83,7 @@ fn part1_example() {
 #[test]
 fn part1_input() {
     let input = include_str!("../input/day1_part1");
-    assert_eq!(part1(input), 2086478);
+    assert_eq!(part1(input), 2_086_478);
 }
 
 pub fn part2(input: &str) -> u32 {
@@ -111,5 +112,5 @@ fn part2_example() {
 #[test]
 fn part2_input() {
     let input = include_str!("../input/day1_part1");
-    assert_eq!(part2(input), 24941624);
+    assert_eq!(part2(input), 24_941_624);
 }

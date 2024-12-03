@@ -26,13 +26,13 @@ fn parse_int(bytes: &[u8]) -> u8 {
 #[test]
 fn test_part1_example() {
     let input = include_str!("../input/day2_part1_example");
-    assert_eq!(part1(input), 2)
+    assert_eq!(part1(input), 2);
 }
 
 #[test]
 fn test_part1_input() {
     let input = include_str!("../input/day2_part1");
-    assert_eq!(part1(input), 686)
+    assert_eq!(part1(input), 686);
 }
 
 #[inline(always)]
@@ -94,11 +94,11 @@ fn is_record_safe(mut record: impl Iterator<Item = u8>) -> u8 {
 #[test]
 fn test_part2_example() {
     let input = include_str!("../input/day2_part1_example");
-    assert_eq!(part2(input), 4)
+    assert_eq!(part2(input), 4);
 }
 
 #[test]
 fn test_part2_input() {
     let input = include_str!("../input/day2_part1");
-    assert_eq!(part2(input), 717)
+    assert_eq!(part2(input), 717);
 }

@@ -16,3 +16,9 @@ harness = false
 [[bench]]
 name = "day2"
 harness = false
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+must_use_candidate = "allow"
+cast_lossless = "allow"
+inline_always = "allow"
