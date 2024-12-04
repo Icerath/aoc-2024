@@ -57,7 +57,7 @@ pub fn part2(input: &str) -> u32 {
         if remaining.starts_with(b"do()") {
             remaining = &remaining[4..];
         } else if remaining.starts_with(b"don't()") {
-            remaining = &remaining[6..];
+            remaining = &remaining[7..];
             let Some(skip) = remaining.find(b"do()") else { break };
             remaining = &remaining[skip..];
         }
