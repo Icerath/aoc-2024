@@ -64,7 +64,7 @@ pub fn part2(input: &str) -> u32 {
             } else if remaining.starts_with(b"don't()") {
                 remaining = remaining.get_unchecked(7..);
                 let Some(skip) = remaining.find(b"do()") else { break };
-                remaining = remaining.get_unchecked(skip..);
+                remaining = remaining.get_unchecked(skip + 4..);
             }
 
             if !remaining.starts_with(b"mul(") {
