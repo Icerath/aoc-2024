@@ -4,7 +4,7 @@ pub fn part1(input: &str) -> u32 {
     let input = input.as_bytes();
     let mut sum = 0;
     let mut remaining = input;
-    while !remaining.is_empty() {
+    while remaining.len() >= 8 {
         if !remaining.starts_with(b"mul(") {
             remaining = &remaining[1..];
             continue;
@@ -53,7 +53,7 @@ pub fn part2(input: &str) -> u32 {
     let input = input.as_bytes();
     let mut sum = 0;
     let mut remaining = input;
-    while !remaining.is_empty() {
+    while remaining.len() >= 8 {
         if remaining.starts_with(b"do()") {
             remaining = &remaining[4..];
         } else if remaining.starts_with(b"don't()") {
