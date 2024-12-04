@@ -5,26 +5,30 @@ pub fn part1(input: &str) -> u32 {
     let mut sum = 0;
     let mut remaining = input;
     while remaining.len() >= 8 {
-        if !remaining.starts_with(b"mul(") {
-            remaining = &remaining[1..];
-            continue;
+        unsafe {
+            if !remaining.starts_with(b"mul(") {
+                remaining = remaining.get_unchecked(1..);
+                continue;
+            }
+            remaining = remaining.get_unchecked(4..);
+            std::hint::assert_unchecked(remaining.len() >= 4);
+            let Some(lhs) = parse_num(&mut remaining) else { continue };
+            if *remaining.get_unchecked(0) != b',' {
+                continue;
+            }
+            remaining = remaining.get_unchecked(1..);
+            let Some(rhs) = parse_num(&mut remaining) else { continue };
+            if *remaining.get_unchecked(0) != b')' {
+                continue;
+            }
+            remaining = remaining.get_unchecked(1..);
+            sum += lhs * rhs;
         }
-        remaining = &remaining[4..];
-        let Some(lhs) = parse_num(&mut remaining) else { continue };
-        if remaining[0] != b',' {
-            continue;
-        }
-        remaining = &remaining[1..];
-        let Some(rhs) = parse_num(&mut remaining) else { continue };
-        if remaining[0] != b')' {
-            continue;
-        }
-        remaining = &remaining[1..];
-        sum += lhs * rhs;
     }
     sum
 }
 
+#[inline(always)]
 fn parse_num(input: &mut &[u8]) -> Option<u32> {
     let mut num = 0u32;
     for i in 0..3 {
@@ -32,7 +36,7 @@ fn parse_num(input: &mut &[u8]) -> Option<u32> {
             n @ b'0'..=b'9' => num = (num * 10) + (n - b'0') as u32,
             _ => return (i != 0).then_some(num),
         }
-        *input = &input[1..];
+        *input = unsafe { input.get_unchecked(1..) };
     }
     Some(num)
 }
@@ -54,30 +58,32 @@ pub fn part2(input: &str) -> u32 {
     let mut sum = 0;
     let mut remaining = input;
     while remaining.len() >= 8 {
-        if remaining.starts_with(b"do()") {
-            remaining = &remaining[4..];
-        } else if remaining.starts_with(b"don't()") {
-            remaining = &remaining[7..];
-            let Some(skip) = remaining.find(b"do()") else { break };
-            remaining = &remaining[skip..];
-        }
+        unsafe {
+            if remaining.starts_with(b"do()") {
+                remaining = &remaining[4..];
+            } else if remaining.starts_with(b"don't()") {
+                remaining = remaining.get_unchecked(7..);
+                let Some(skip) = remaining.find(b"do()") else { break };
+                remaining = remaining.get_unchecked(skip..);
+            }
 
-        if !remaining.starts_with(b"mul(") {
-            remaining = &remaining[1..];
-            continue;
+            if !remaining.starts_with(b"mul(") {
+                remaining = remaining.get_unchecked(1..);
+                continue;
+            }
+            remaining = remaining.get_unchecked(4..);
+            let Some(lhs) = parse_num(&mut remaining) else { continue };
+            if remaining[0] != b',' {
+                continue;
+            }
+            remaining = remaining.get_unchecked(1..);
+            let Some(rhs) = parse_num(&mut remaining) else { continue };
+            if *remaining.get_unchecked(0) != b')' {
+                continue;
+            }
+            remaining = remaining.get_unchecked(1..);
+            sum += lhs * rhs;
         }
-        remaining = &remaining[4..];
-        let Some(lhs) = parse_num(&mut remaining) else { continue };
-        if remaining[0] != b',' {
-            continue;
-        }
-        remaining = &remaining[1..];
-        let Some(rhs) = parse_num(&mut remaining) else { continue };
-        if remaining[0] != b')' {
-            continue;
-        }
-        remaining = &remaining[1..];
-        sum += lhs * rhs;
     }
     sum
 }
