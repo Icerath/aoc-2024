@@ -61,34 +61,6 @@ struct Part2LineData {
 
 #[target_feature(enable = "avx2,bmi1,bmi2,cmpxchg16b,lzcnt,movbe,popcnt")]
 #[inline]
-unsafe fn accum(input: &[u8]) -> [LineData; 140] {
-    let mut out = std::array::from_fn(|_| LineData::default());
-
-    for line_num in 0..140 {
-        let line = &input[line_num * 141..];
-        let first_block = u8x64::from_array(line[..64].try_into().unwrap());
-        out[line_num].x.0[0] = first_block.simd_eq(u8x64::from([b'X'; 64])).to_bitmask();
-        out[line_num].m.0[0] = first_block.simd_eq(u8x64::from([b'M'; 64])).to_bitmask();
-        out[line_num].a.0[0] = first_block.simd_eq(u8x64::from([b'A'; 64])).to_bitmask();
-        out[line_num].s.0[0] = first_block.simd_eq(u8x64::from([b'S'; 64])).to_bitmask();
-
-        let second_block = u8x64::from_array(line[64..128].try_into().unwrap());
-        out[line_num].x.0[1] = second_block.simd_eq(u8x64::from([b'X'; 64])).to_bitmask();
-        out[line_num].m.0[1] = second_block.simd_eq(u8x64::from([b'M'; 64])).to_bitmask();
-        out[line_num].a.0[1] = second_block.simd_eq(u8x64::from([b'A'; 64])).to_bitmask();
-        out[line_num].s.0[1] = second_block.simd_eq(u8x64::from([b'S'; 64])).to_bitmask();
-
-        let third_block = u8x16::load_or_default(line[128..140].try_into().unwrap());
-        out[line_num].x.0[2] = third_block.simd_eq(u8x16::from([b'X'; 16])).to_bitmask();
-        out[line_num].m.0[2] = third_block.simd_eq(u8x16::from([b'M'; 16])).to_bitmask();
-        out[line_num].a.0[2] = third_block.simd_eq(u8x16::from([b'A'; 16])).to_bitmask();
-        out[line_num].s.0[2] = third_block.simd_eq(u8x16::from([b'S'; 16])).to_bitmask();
-    }
-    out
-}
-
-#[target_feature(enable = "avx2,bmi1,bmi2,cmpxchg16b,lzcnt,movbe,popcnt")]
-#[inline]
 unsafe fn part2_accum(input: &[u8]) -> [Part2LineData; 140] {
     let mut out = std::array::from_fn(|_| Part2LineData::default());
 
@@ -117,25 +89,44 @@ pub fn part1(input: &str) -> u32 {
 }
 
 #[target_feature(enable = "avx2,bmi1,bmi2,cmpxchg16b,lzcnt,movbe,popcnt")]
+#[expect(unused_assignments)]
 unsafe fn part1_inner(input: &[u8]) -> u32 {
-    let line_data = accum(input);
-
     let mut count = 0;
-    // vertical
-    for [a, b, c, d] in line_data.array_windows::<4>() {
+    let [mut a, mut b, mut c, mut d] = [LineData::default(); 4];
+    for line_num in 0..140 {
+        let line = &input[line_num * 141..];
+        let first_block = u8x64::from_array(line[..64].try_into().unwrap());
+        d = c;
+        c = b;
+        b = a;
+
+        a.x.0[0] = first_block.simd_eq(u8x64::from([b'X'; 64])).to_bitmask();
+        a.m.0[0] = first_block.simd_eq(u8x64::from([b'M'; 64])).to_bitmask();
+        a.a.0[0] = first_block.simd_eq(u8x64::from([b'A'; 64])).to_bitmask();
+        a.s.0[0] = first_block.simd_eq(u8x64::from([b'S'; 64])).to_bitmask();
+
+        let second_block = u8x64::from_array(line[64..128].try_into().unwrap());
+        a.x.0[1] = second_block.simd_eq(u8x64::from([b'X'; 64])).to_bitmask();
+        a.m.0[1] = second_block.simd_eq(u8x64::from([b'M'; 64])).to_bitmask();
+        a.a.0[1] = second_block.simd_eq(u8x64::from([b'A'; 64])).to_bitmask();
+        a.s.0[1] = second_block.simd_eq(u8x64::from([b'S'; 64])).to_bitmask();
+
+        let third_block = u8x16::load_or_default(line[128..140].try_into().unwrap());
+        a.x.0[2] = third_block.simd_eq(u8x16::from([b'X'; 16])).to_bitmask();
+        a.m.0[2] = third_block.simd_eq(u8x16::from([b'M'; 16])).to_bitmask();
+        a.a.0[2] = third_block.simd_eq(u8x16::from([b'A'; 16])).to_bitmask();
+        a.s.0[2] = third_block.simd_eq(u8x16::from([b'S'; 16])).to_bitmask();
+
+        // horizontal
+        count += (a.s & (a.a << 1) & (a.m << 2) & (a.x << 3)).count_ones();
+        count += (a.x & (a.m << 1) & (a.a << 2) & (a.s << 3)).count_ones();
+        // vertical
         count += (a.x & b.m & c.a & d.s).count_ones();
         count += (a.s & b.a & c.m & d.x).count_ones();
-    }
-    // horizontal
-    for line in &line_data {
-        count += (line.s & (line.a << 1) & (line.m << 2) & (line.x << 3)).count_ones();
-        count += (line.x & (line.m << 1) & (line.a << 2) & (line.s << 3)).count_ones();
-    }
-    // diagonal
-    for [a, b, c, d] in line_data.array_windows::<4>() {
+        // diagonal
         count += (a.x & b.m << 1 & c.a << 2 & d.s << 3).count_ones();
         count += (a.s & b.a << 1 & c.m << 2 & d.x << 3).count_ones();
-
+        // diagonal
         count += (d.x & c.m << 1 & b.a << 2 & a.s << 3).count_ones();
         count += (d.s & c.a << 1 & b.m << 2 & a.x << 3).count_ones();
     }
