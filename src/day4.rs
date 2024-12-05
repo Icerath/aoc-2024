@@ -52,6 +52,13 @@ struct LineData {
     s: BitSet,
 }
 
+#[derive(Default, Clone, Copy)]
+struct Part2LineData {
+    m: BitSet,
+    a: BitSet,
+    s: BitSet,
+}
+
 #[target_feature(enable = "avx2,bmi1,bmi2,cmpxchg16b,lzcnt,movbe,popcnt")]
 #[inline]
 unsafe fn accum(input: &[u8]) -> [LineData; 140] {
@@ -73,6 +80,31 @@ unsafe fn accum(input: &[u8]) -> [LineData; 140] {
 
         let third_block = u8x16::load_or_default(line[128..140].try_into().unwrap());
         out[line_num].x.0[2] = third_block.simd_eq(u8x16::from([b'X'; 16])).to_bitmask();
+        out[line_num].m.0[2] = third_block.simd_eq(u8x16::from([b'M'; 16])).to_bitmask();
+        out[line_num].a.0[2] = third_block.simd_eq(u8x16::from([b'A'; 16])).to_bitmask();
+        out[line_num].s.0[2] = third_block.simd_eq(u8x16::from([b'S'; 16])).to_bitmask();
+    }
+    out
+}
+
+#[target_feature(enable = "avx2,bmi1,bmi2,cmpxchg16b,lzcnt,movbe,popcnt")]
+#[inline]
+unsafe fn part2_accum(input: &[u8]) -> [Part2LineData; 140] {
+    let mut out = std::array::from_fn(|_| Part2LineData::default());
+
+    for line_num in 0..140 {
+        let line = &input[line_num * 141..];
+        let first_block = u8x64::from_array(line[..64].try_into().unwrap());
+        out[line_num].m.0[0] = first_block.simd_eq(u8x64::from([b'M'; 64])).to_bitmask();
+        out[line_num].a.0[0] = first_block.simd_eq(u8x64::from([b'A'; 64])).to_bitmask();
+        out[line_num].s.0[0] = first_block.simd_eq(u8x64::from([b'S'; 64])).to_bitmask();
+
+        let second_block = u8x64::from_array(line[64..128].try_into().unwrap());
+        out[line_num].m.0[1] = second_block.simd_eq(u8x64::from([b'M'; 64])).to_bitmask();
+        out[line_num].a.0[1] = second_block.simd_eq(u8x64::from([b'A'; 64])).to_bitmask();
+        out[line_num].s.0[1] = second_block.simd_eq(u8x64::from([b'S'; 64])).to_bitmask();
+
+        let third_block = u8x16::load_or_default(line[128..140].try_into().unwrap());
         out[line_num].m.0[2] = third_block.simd_eq(u8x16::from([b'M'; 16])).to_bitmask();
         out[line_num].a.0[2] = third_block.simd_eq(u8x16::from([b'A'; 16])).to_bitmask();
         out[line_num].s.0[2] = third_block.simd_eq(u8x16::from([b'S'; 16])).to_bitmask();
@@ -129,7 +161,7 @@ pub fn part2(input: &str) -> u32 {
 
 #[target_feature(enable = "avx2,bmi1,bmi2,cmpxchg16b,lzcnt,movbe,popcnt")]
 unsafe fn part2_inner(input: &[u8]) -> u32 {
-    let line_data = accum(input);
+    let line_data = part2_accum(input);
     let mut count = 0;
     for [a, b, c] in line_data.array_windows::<3>() {
         let mid = b.a << 1;
