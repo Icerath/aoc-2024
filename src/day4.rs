@@ -153,21 +153,10 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
 
         let mid = b.a << 1;
 
-        let top = a.m & (a.s << 2);
-        let bot = c.m & (c.s << 2);
-        count += (top & mid & bot).count_ones();
-
-        let top = a.s & (a.m << 2);
-        let bot = c.s & (c.m << 2);
-        count += (top & mid & bot).count_ones();
-
-        let top = a.m & (a.m << 2);
-        let bot = c.s & (c.s << 2);
-        count += (top & mid & bot).count_ones();
-
-        let top = a.s & (a.s << 2);
-        let bot = c.m & (c.m << 2);
-        count += (top & mid & bot).count_ones();
+        count += (mid & a.m & a.s << 2 & c.m & c.s << 2).count_ones();
+        count += (mid & a.s & a.m << 2 & c.s & c.m << 2).count_ones();
+        count += (mid & a.m & a.m << 2 & c.s & c.s << 2).count_ones();
+        count += (mid & a.s & a.s << 2 & c.m & c.m << 2).count_ones();
     }
     count
 }
