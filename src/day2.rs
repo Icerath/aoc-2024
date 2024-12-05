@@ -10,11 +10,8 @@ pub fn part1(input: &str) -> u32 {
 
         while i < input.len() && input[i] != b'\n' {
             let is_single_digit = i + 1 == input.len() || matches!(input[i + 1], b' ' | b'\n');
-            let num = if is_single_digit {
-                input[i] - b'0'
-            } else {
-                (input[i] - b'0') * 10 + input[i + 1] - b'0'
-            };
+            let num =
+                if is_single_digit { input[i] - b'0' } else { (input[i] - b'0') * 10 + input[i + 1] - b'0' };
             i += (!is_single_digit) as usize + 1;
 
             unsafe {
@@ -61,11 +58,8 @@ pub fn part2(input: &str) -> u32 {
 
         while i < input.len() && input[i] != b'\n' {
             let is_single_digit = i + 1 == input.len() || matches!(input[i + 1], b' ' | b'\n');
-            let num = if is_single_digit {
-                input[i] - b'0'
-            } else {
-                (input[i] - b'0') * 10 + input[i + 1] - b'0'
-            };
+            let num =
+                if is_single_digit { input[i] - b'0' } else { (input[i] - b'0') * 10 + input[i + 1] - b'0' };
             i += (!is_single_digit) as usize + 1;
 
             unsafe {
