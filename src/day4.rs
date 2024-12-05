@@ -3,62 +3,6 @@ use std::{
     simd::{cmp::SimdPartialEq, u8x16, u8x64},
 };
 
-#[derive(Clone, Copy, Default)]
-struct BitSet([u64; 3]);
-
-impl BitSet {
-    #[inline(always)]
-    fn count_ones(&self) -> u32 {
-        self.0[0].count_ones() + self.0[1].count_ones() + self.0[2].count_ones()
-    }
-}
-
-impl Shl<u8> for BitSet {
-    type Output = Self;
-    #[inline(always)]
-    fn shl(mut self, n: u8) -> Self {
-        let shift = 64 - n;
-
-        let co0 = self.0[0] >> shift;
-        let co1 = self.0[1] >> shift;
-
-        self.0[0] <<= n;
-        self.0[1] <<= n;
-        self.0[2] <<= n;
-
-        self.0[1] |= co0;
-        self.0[2] |= co1;
-
-        self
-    }
-}
-
-impl BitAnd for BitSet {
-    type Output = Self;
-    #[inline(always)]
-    fn bitand(mut self, rhs: Self) -> Self::Output {
-        self.0[0] &= rhs.0[0];
-        self.0[1] &= rhs.0[1];
-        self.0[2] &= rhs.0[2];
-        self
-    }
-}
-
-#[derive(Default, Clone, Copy)]
-struct LineData {
-    x: BitSet,
-    m: BitSet,
-    a: BitSet,
-    s: BitSet,
-}
-
-#[derive(Default, Clone, Copy)]
-struct Part2LineData {
-    m: BitSet,
-    a: BitSet,
-    s: BitSet,
-}
-
 pub fn part1(input: &str) -> u32 {
     unsafe { part1_inner(input.as_bytes()) }
 }
@@ -172,4 +116,60 @@ fn test_part2_example() {
 fn test_part2_input() {
     let input = include_str!("../input/day4_part1");
     assert_eq!(part2(input), 1992);
+}
+
+#[derive(Clone, Copy, Default)]
+struct BitSet([u64; 3]);
+
+impl BitSet {
+    #[inline(always)]
+    fn count_ones(&self) -> u32 {
+        self.0[0].count_ones() + self.0[1].count_ones() + self.0[2].count_ones()
+    }
+}
+
+impl Shl<u8> for BitSet {
+    type Output = Self;
+    #[inline(always)]
+    fn shl(mut self, n: u8) -> Self {
+        let shift = 64 - n;
+
+        let co0 = self.0[0] >> shift;
+        let co1 = self.0[1] >> shift;
+
+        self.0[0] <<= n;
+        self.0[1] <<= n;
+        self.0[2] <<= n;
+
+        self.0[1] |= co0;
+        self.0[2] |= co1;
+
+        self
+    }
+}
+
+impl BitAnd for BitSet {
+    type Output = Self;
+    #[inline(always)]
+    fn bitand(mut self, rhs: Self) -> Self::Output {
+        self.0[0] &= rhs.0[0];
+        self.0[1] &= rhs.0[1];
+        self.0[2] &= rhs.0[2];
+        self
+    }
+}
+
+#[derive(Default, Clone, Copy)]
+struct LineData {
+    x: BitSet,
+    m: BitSet,
+    a: BitSet,
+    s: BitSet,
+}
+
+#[derive(Default, Clone, Copy)]
+struct Part2LineData {
+    m: BitSet,
+    a: BitSet,
+    s: BitSet,
 }
