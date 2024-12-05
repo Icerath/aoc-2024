@@ -81,7 +81,12 @@ unsafe fn accum(input: &[u8]) -> [LineData; 140] {
 }
 
 pub fn part1(input: &str) -> u32 {
-    let line_data = unsafe { accum(input.as_bytes()) };
+    unsafe { part1_inner(input.as_bytes()) }
+}
+
+#[target_feature(enable = "avx2,bmi1,bmi2,cmpxchg16b,lzcnt,movbe,popcnt")]
+unsafe fn part1_inner(input: &[u8]) -> u32 {
+    let line_data = accum(input);
 
     let mut count = 0;
     // vertical
@@ -119,7 +124,12 @@ fn test_part1_input() {
 }
 
 pub fn part2(input: &str) -> u32 {
-    let line_data = unsafe { accum(input.as_bytes()) };
+    unsafe { part2_inner(input.as_bytes()) }
+}
+
+#[target_feature(enable = "avx2,bmi1,bmi2,cmpxchg16b,lzcnt,movbe,popcnt")]
+unsafe fn part2_inner(input: &[u8]) -> u32 {
+    let line_data = accum(input);
     let mut count = 0;
     for [a, b, c] in line_data.array_windows::<3>() {
         let mid = b.a << 1;
