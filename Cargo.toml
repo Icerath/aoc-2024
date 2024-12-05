@@ -1,3 +1,4 @@
+cargo-features = ["profile-rustflags"]
 [package]
 name = "aoc-2024"
 version = "0.1.0"
@@ -9,6 +10,9 @@ criterion = "0.5.1"
 [dependencies]
 bstr = "1.11.0"
 tinyvec = "1.8.0"
+
+[profile.release]
+rustflags = ["-C", "target-cpu=native"]
 
 [lints.clippy]
 pedantic = { level = "warn", priority = -1 }
