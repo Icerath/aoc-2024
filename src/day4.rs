@@ -14,23 +14,23 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
     let [mut a, mut b, mut c, mut d] = [LineData::default(); 4];
     for line_num in 0..140 {
         let line = &input[line_num * 141..];
-        let first_block = u8x64::from_array(line[..64].try_into().unwrap());
         d = c;
         c = b;
         b = a;
 
+        let first_block = u8x64::from_array(line.get_unchecked(..64).try_into().unwrap_unchecked());
         a.x.0[0] = first_block.simd_eq(u8x64::from([b'X'; 64])).to_bitmask();
         a.m.0[0] = first_block.simd_eq(u8x64::from([b'M'; 64])).to_bitmask();
         a.a.0[0] = first_block.simd_eq(u8x64::from([b'A'; 64])).to_bitmask();
         a.s.0[0] = first_block.simd_eq(u8x64::from([b'S'; 64])).to_bitmask();
 
-        let second_block = u8x64::from_array(line[64..128].try_into().unwrap());
+        let second_block = u8x64::from_array(line.get_unchecked(64..128).try_into().unwrap_unchecked());
         a.x.0[1] = second_block.simd_eq(u8x64::from([b'X'; 64])).to_bitmask();
         a.m.0[1] = second_block.simd_eq(u8x64::from([b'M'; 64])).to_bitmask();
         a.a.0[1] = second_block.simd_eq(u8x64::from([b'A'; 64])).to_bitmask();
         a.s.0[1] = second_block.simd_eq(u8x64::from([b'S'; 64])).to_bitmask();
 
-        let third_block = u8x16::load_or_default(line[128..140].try_into().unwrap());
+        let third_block = u8x16::load_or_default(line.get_unchecked(128..140));
         a.x.0[2] = third_block.simd_eq(u8x16::from([b'X'; 16])).to_bitmask();
         a.m.0[2] = third_block.simd_eq(u8x16::from([b'M'; 16])).to_bitmask();
         a.a.0[2] = third_block.simd_eq(u8x16::from([b'A'; 16])).to_bitmask();
@@ -76,21 +76,21 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
 
     let mut count = 0;
     for line_num in 0..140 {
-        let line = &input[line_num * 141..];
-        let first_block = u8x64::from_array(line[..64].try_into().unwrap());
+        let line = input.get_unchecked(line_num * 141..);
         c = b;
         b = a;
 
+        let first_block = u8x64::from_array(line.get_unchecked(..64).try_into().unwrap_unchecked());
         a.m.0[0] = first_block.simd_eq(u8x64::from([b'M'; 64])).to_bitmask();
         a.a.0[0] = first_block.simd_eq(u8x64::from([b'A'; 64])).to_bitmask();
         a.s.0[0] = first_block.simd_eq(u8x64::from([b'S'; 64])).to_bitmask();
 
-        let second_block = u8x64::from_array(line[64..128].try_into().unwrap());
+        let second_block = u8x64::from_array(line.get_unchecked(64..128).try_into().unwrap_unchecked());
         a.m.0[1] = second_block.simd_eq(u8x64::from([b'M'; 64])).to_bitmask();
         a.a.0[1] = second_block.simd_eq(u8x64::from([b'A'; 64])).to_bitmask();
         a.s.0[1] = second_block.simd_eq(u8x64::from([b'S'; 64])).to_bitmask();
 
-        let third_block = u8x16::load_or_default(line[128..140].try_into().unwrap());
+        let third_block = u8x16::load_or_default(line.get_unchecked(128..140));
         a.m.0[2] = third_block.simd_eq(u8x16::from([b'M'; 16])).to_bitmask();
         a.a.0[2] = third_block.simd_eq(u8x16::from([b'A'; 16])).to_bitmask();
         a.s.0[2] = third_block.simd_eq(u8x16::from([b'S'; 16])).to_bitmask();
