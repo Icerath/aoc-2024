@@ -4,12 +4,14 @@ use std::ops::{BitAnd, Shl};
 struct BitSet([u64; 3]);
 
 impl BitSet {
+    #[inline(always)]
     fn set_bit(&mut self, bit: u8) {
         let shift = bit % 64;
         let int_index = (bit / 64) as usize;
         let int = &mut self.0[int_index];
         *int |= 1 << shift;
     }
+    #[inline(always)]
     fn count_ones(&self) -> u32 {
         self.0[0].count_ones() + self.0[1].count_ones() + self.0[2].count_ones()
     }
@@ -37,6 +39,7 @@ impl Shl<u8> for BitSet {
 
 impl BitAnd for BitSet {
     type Output = Self;
+    #[inline(always)]
     fn bitand(mut self, rhs: Self) -> Self::Output {
         self.0[0] &= rhs.0[0];
         self.0[1] &= rhs.0[1];
@@ -81,8 +84,7 @@ fn accum(input: &[u8]) -> Box<[LineData]> {
 }
 
 pub fn part1(input: &str) -> u32 {
-    let input = input.as_bytes();
-    let line_data = accum(input);
+    let line_data = accum(input.as_bytes());
 
     let mut count = 0;
     // vertical
@@ -116,4 +118,41 @@ fn test_part1_example() {
 fn test_part1_input() {
     let input = include_str!("../input/day4_part1");
     assert_eq!(part1(input), 2571);
+}
+
+pub fn part2(input: &str) -> u32 {
+    let line_data = accum(input.as_bytes());
+    let mut count = 0;
+    for [a, b, c] in line_data.array_windows::<3>() {
+        let mid = b.a << 1;
+
+        let top = a.m & (a.s << 2);
+        let bot = c.m & (c.s << 2);
+        count += (top & mid & bot).count_ones();
+
+        let top = a.s & (a.m << 2);
+        let bot = c.s & (c.m << 2);
+        count += (top & mid & bot).count_ones();
+
+        let top = a.m & (a.m << 2);
+        let bot = c.s & (c.s << 2);
+        count += (top & mid & bot).count_ones();
+
+        let top = a.s & (a.s << 2);
+        let bot = c.m & (c.m << 2);
+        count += (top & mid & bot).count_ones();
+    }
+    count
+}
+
+#[test]
+fn test_part2_example() {
+    let input = include_str!("../input/day4_part1_example");
+    assert_eq!(part2(input), 9);
+}
+
+#[test]
+fn test_part2_input() {
+    let input = include_str!("../input/day4_part1");
+    assert_eq!(part2(input), 1992);
 }
