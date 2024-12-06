@@ -1,4 +1,8 @@
-use std::cmp::Ordering;
+use std::{
+    arch::x86_64::_mm_maddubs_epi16,
+    cmp::Ordering,
+    simd::{num::SimdUint, simd_swizzle, u16x8, u8x16, u8x32},
+};
 
 use bstr::ByteSlice;
 
@@ -25,15 +29,19 @@ unsafe fn generic_impl<const IS_PART1: bool>(input: &str) -> u32 {
     let mut rules_text = input.get_unchecked(..rules_end);
 
     while rules_text.len() > 32 {
-        let block: [u8; 32] = rules_text.get_unchecked(..32).try_into().unwrap();
-        rules_text = rules_text.get_unchecked(30..);
+        let block = u8x32::from_array(rules_text.get_unchecked(..32).try_into().unwrap_unchecked());
+        rules_text = rules_text.get_unchecked(24..);
 
-        for i in 0..5 {
-            let i = i * 6;
-            let lhs = (block.get_unchecked(i) - b'0') * 10 + (block.get_unchecked(i + 1) - b'0');
-            let rhs = (block.get_unchecked(i + 3) - b'0') * 10 + (block.get_unchecked(i + 4) - b'0');
-            *map.get_unchecked_mut(lhs as usize).get_unchecked_mut(rhs as usize) = true;
-        }
+        let multiplier = u8x16::from_array([10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1]);
+        let block = simd_swizzle!(block, [0, 1, 3, 4, 6, 7, 9, 10, 12, 13, 15, 16, 18, 19, 21, 22]);
+        let block = block - u8x16::splat(b'0');
+        let nums = _mm_maddubs_epi16(block.into(), multiplier.into());
+        let nums = u16x8::from(nums).cast::<u8>().to_array();
+
+        *map.get_unchecked_mut(nums[0] as usize).get_unchecked_mut(nums[1] as usize) = true;
+        *map.get_unchecked_mut(nums[2] as usize).get_unchecked_mut(nums[3] as usize) = true;
+        *map.get_unchecked_mut(nums[4] as usize).get_unchecked_mut(nums[5] as usize) = true;
+        *map.get_unchecked_mut(nums[6] as usize).get_unchecked_mut(nums[7] as usize) = true;
     }
     let mut rem = input.get_unchecked(rules_end - rules_text.len()..);
     loop {
