@@ -1,7 +1,7 @@
 use std::{
     arch::x86_64::_mm_maddubs_epi16,
     cmp::Ordering,
-    simd::{num::SimdUint, simd_swizzle, u16x8, u8x16, u8x32},
+    simd::{simd_swizzle, u8x16, u8x32},
 };
 
 use bstr::ByteSlice;
@@ -36,7 +36,7 @@ unsafe fn generic_impl<const IS_PART1: bool>(input: &str) -> u32 {
         let block = simd_swizzle!(block, [0, 1, 3, 4, 6, 7, 9, 10, 12, 13, 15, 16, 18, 19, 21, 22]);
         let block = block - u8x16::splat(b'0');
         let nums = _mm_maddubs_epi16(block.into(), multiplier.into());
-        let nums = u16x8::from(nums).cast::<u8>().to_array();
+        let nums = simd_swizzle!(u8x16::from(nums), [0, 2, 4, 6, 8, 10, 12, 14]).to_array();
 
         *map.get_unchecked_mut(nums[0] as usize).get_unchecked_mut(nums[1] as usize) = true;
         *map.get_unchecked_mut(nums[2] as usize).get_unchecked_mut(nums[3] as usize) = true;
