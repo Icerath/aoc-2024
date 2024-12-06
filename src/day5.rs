@@ -16,7 +16,6 @@ fn test_part1_input() {
     assert_eq!(part1(include_str!("../input/day5_part1")), 6260);
 }
 
-#[expect(clippy::needless_range_loop)]
 #[target_feature(enable = "avx2,bmi1,bmi2,cmpxchg16b,lzcnt,movbe,popcnt")]
 unsafe fn generic_impl<const IS_PART1: bool>(input: &str) -> u32 {
     let input = input.as_bytes();
@@ -59,7 +58,8 @@ unsafe fn generic_impl<const IS_PART1: bool>(input: &str) -> u32 {
         let max_i = line.len() / 3;
         std::hint::assert_unchecked(max_i < 24);
         for i in 0..max_i + 1 {
-            update[i] = (line.get_unchecked(i * 3) - b'0') * 10 + line.get_unchecked(i * 3 + 1) - b'0';
+            *update.get_unchecked_mut(i) =
+                (line.get_unchecked(i * 3) - b'0') * 10 + line.get_unchecked(i * 3 + 1) - b'0';
         }
         let old_update = update;
         let old_update = old_update.get_unchecked(..=max_i);
