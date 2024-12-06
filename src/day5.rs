@@ -45,18 +45,18 @@ unsafe fn generic_impl<const IS_PART1: bool>(input: &str) -> u32 {
     }
     let mut rem = input.get_unchecked(rules_end - rules_text.len()..);
     loop {
-        let offset = 5;
-        let line = &rem.get_unchecked(..offset);
-        rem = rem.get_unchecked(offset + 1..);
+        if *rem.get_unchecked(0) == b'\n' {
+            break;
+        }
+
+        let line = &rem.get_unchecked(..5);
+        rem = rem.get_unchecked(6..);
         let lhs = (line.get_unchecked(0) - b'0') * 10 + line.get_unchecked(1) - b'0';
         let rhs = (line.get_unchecked(3) - b'0') * 10 + line.get_unchecked(4) - b'0';
         *map.get_unchecked_mut(lhs as usize).get_unchecked_mut(rhs as usize) = true;
-
-        if *rem.get_unchecked(0) == b'\n' {
-            rem = rem.get_unchecked(1..);
-            break;
-        }
     }
+
+    rem = rem.get_unchecked(1..);
 
     loop {
         let Some(offset) = rem.find_byte(b'\n') else { break };
