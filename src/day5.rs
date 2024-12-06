@@ -63,18 +63,19 @@ unsafe fn generic_impl<const IS_PART1: bool>(input: &str) -> u32 {
         }
         let old_update = update;
         let old_update = old_update.get_unchecked(..=max_i);
-        let update = update.get_unchecked_mut(..=max_i);
         if IS_PART1 {
-            if !old_update
+            if old_update
                 .is_sorted_by(|&lhs, &rhs| *map.get_unchecked(lhs as usize).get_unchecked(rhs as usize))
             {
-                continue;
+                sum += *old_update.get_unchecked(old_update.len() / 2) as u32;
             }
-        } else if old_update
-            .is_sorted_by(|&lhs, &rhs| *map.get_unchecked(lhs as usize).get_unchecked(rhs as usize))
-        {
             continue;
         }
+        if old_update.is_sorted_by(|&lhs, &rhs| *map.get_unchecked(lhs as usize).get_unchecked(rhs as usize)) {
+            continue;
+        }
+        let update = update.get_unchecked_mut(..=max_i);
+        std::hint::assert_unchecked(update.len() < 24);
         update.sort_unstable_by(|&lhs, &rhs| {
             if *map.get_unchecked(lhs as usize).get_unchecked(rhs as usize) {
                 Ordering::Less
@@ -82,12 +83,7 @@ unsafe fn generic_impl<const IS_PART1: bool>(input: &str) -> u32 {
                 Ordering::Equal
             }
         });
-
-        if IS_PART1 {
-            if update == old_update {
-                sum += *old_update.get_unchecked(old_update.len() / 2) as u32;
-            }
-        } else if update != old_update {
+        if update != old_update {
             sum += *update.get_unchecked(update.len() / 2) as u32;
         }
     }
