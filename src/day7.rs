@@ -1,16 +1,16 @@
+#![expect(clippy::cast_possible_truncation)]
 use std::hint::unreachable_unchecked;
 
 macro_rules! impl_part {
     ($input: ident, $check: ident) => {{
         let mut sum = 0;
-        let mut operands_buf: Vec<u64> = vec![];
+        let mut operands_buf: Vec<u16> = vec![];
         for line in $input[..$input.len() - 1].as_bytes().split(|&b| b == b'\n') {
             let sep = line.iter().position(|&b| b == b':').unwrap();
             let operands = &line[sep + 2..];
             let expected = parse_int(&line[..sep]);
-
             operands_buf.clear();
-            operands_buf.extend(operands.split(|&b| b == b' ').map(parse_int));
+            operands_buf.extend(operands.split(|&b| b == b' ').map(|s| parse_int(s) as u16));
 
             if $check(expected, &operands_buf) {
                 sum += expected;
@@ -24,13 +24,14 @@ pub fn part1(input: &str) -> u64 {
     impl_part!(input, check_part1)
 }
 
-fn check_part1(expected: u64, operands: &[u64]) -> bool {
+fn check_part1(expected: u64, operands: &[u16]) -> bool {
     match operands {
         [] => unsafe { unreachable_unchecked() },
-        [last] => *last == expected,
+        [last] => *last as u64 == expected,
         [operands @ .., last] => {
+            let last = *last as u64;
             (expected % last == 0 && check_part1(expected / last, operands))
-                || (expected >= *last && check_part1(expected - last, operands))
+                || (expected >= last && check_part1(expected - last, operands))
         }
     }
 }
@@ -49,15 +50,16 @@ pub fn part2(input: &str) -> u64 {
     impl_part!(input, check_part2)
 }
 
-fn check_part2(expected: u64, operands: &[u64]) -> bool {
-    match operands {
-        [last] => *last == expected,
+fn check_part2(expected: u64, operands: &[u16]) -> bool {
+    match &operands {
+        [last] => *last as u64 == expected,
         [operands @ .., last] => {
+            let last = *last as u64;
             (expected % last == 0 && check_part2(expected / last, operands))
-                || (expected >= *last && check_part2(expected - last, operands))
+                || (expected >= last && check_part2(expected - last, operands))
                 || {
                     let concat = 10_u64.pow(last.ilog10() + 1);
-                    (expected % concat) == *last && check_part2(expected / concat, operands)
+                    (expected % concat) == last && check_part2(expected / concat, operands)
                 }
         }
         _ => unsafe { unreachable_unchecked() },
