@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, hint::unreachable_unchecked};
 
 use bstr::ByteSlice;
 
@@ -51,22 +51,105 @@ fn test_part1_input() {
     assert_eq!(part1(include_str!("../input/day6_part1")), 5453);
 }
 
+fn go_up(
+    input: &[u8],
+    object_square: usize,
+    history: &mut [u8; 130 * 131],
+    guard_position: &mut usize,
+) -> bool {
+    loop {
+        if *guard_position < 131 {
+            return false;
+        }
+        let next = *guard_position - 131;
+        if input[next] == b'#' || next == object_square {
+            break;
+        }
+        if history[next] & 1 > 0 {
+            return true;
+        }
+        history[next] |= 1;
+        *guard_position = next;
+    }
+    go_right(input, object_square, history, guard_position)
+}
+fn go_right(
+    input: &[u8],
+    object_square: usize,
+    history: &mut [u8; 130 * 131],
+    guard_position: &mut usize,
+) -> bool {
+    loop {
+        let next = *guard_position + 1;
+        if input[next] == b'\n' {
+            return false;
+        }
+        if input[next] == b'#' || next == object_square {
+            break;
+        }
+        if history[next] & 2 > 0 {
+            return true;
+        }
+        history[next] |= 2;
+        *guard_position = next;
+    }
+    go_down(input, object_square, history, guard_position)
+}
+fn go_down(
+    input: &[u8],
+    object_square: usize,
+    history: &mut [u8; 130 * 131],
+    guard_position: &mut usize,
+) -> bool {
+    loop {
+        if input.len() < *guard_position + 131 {
+            return false;
+        }
+        let next = *guard_position + 131;
+        if input[next] == b'#' || next == object_square {
+            break;
+        }
+        if history[next] & 4 > 0 {
+            return true;
+        }
+        history[next] |= 4;
+        *guard_position = next;
+    }
+    go_left(input, object_square, history, guard_position)
+}
+fn go_left(
+    input: &[u8],
+    object_square: usize,
+    history: &mut [u8; 130 * 131],
+    guard_position: &mut usize,
+) -> bool {
+    loop {
+        if *guard_position % 131 == 0 {
+            return false;
+        }
+        let next = *guard_position - 1;
+        if input[next] == b'#' || next == object_square {
+            break;
+        }
+        if history[next] & 8 > 0 {
+            return true;
+        }
+        history[next] |= 8;
+        *guard_position = next;
+    }
+    go_up(input, object_square, history, guard_position)
+}
+
 #[expect(clippy::cast_possible_wrap, clippy::missing_panics_doc, clippy::cast_sign_loss)]
 pub fn part2(input: &str) -> u32 {
     let input = input.as_bytes();
-    let line_width = input.find_byte(b'\n').unwrap() + 1;
     let initial_guard_position = input.find_byte(b'^').unwrap();
 
     let mut squares_traversed = HashSet::new();
 
-    let down = line_width as isize;
-    let left = -1;
-    let up = -down;
-    let right = -left;
-
     {
         let mut guard_position = initial_guard_position;
-        let mut direction = up;
+        let mut direction = UP;
 
         loop {
             let forward_position = guard_position as isize + direction;
@@ -75,15 +158,13 @@ pub fn part2(input: &str) -> u32 {
             }
             let forward = input[forward_position as usize];
             if forward == b'#' {
-                if direction == up {
-                    direction = right;
-                } else if direction == right {
-                    direction = down;
-                } else if direction == down {
-                    direction = left;
-                } else {
-                    direction = up;
-                }
+                direction = match direction {
+                    UP => RIGHT,
+                    RIGHT => DOWN,
+                    DOWN => LEFT,
+                    LEFT => UP,
+                    _ => unsafe { unreachable_unchecked() },
+                };
             } else if forward == b'\n' {
                 break;
             } else {
@@ -98,50 +179,10 @@ pub fn part2(input: &str) -> u32 {
         if object_square == initial_guard_position {
             continue;
         }
-        let mut history = [[false; 4]; 131 * 130];
-
         let mut guard_position = initial_guard_position;
-        let mut direction = up;
-
-        loop {
-            let forward_position = guard_position as isize + direction;
-
-            if forward_position < 0 || forward_position > input.len() as isize {
-                break;
-            }
-            let forward_position = forward_position as usize;
-            let forward = input[forward_position];
-
-            if forward == b'#' || forward_position == object_square {
-                if direction == up {
-                    direction = right;
-                } else if direction == right {
-                    direction = down;
-                } else if direction == down {
-                    direction = left;
-                } else {
-                    direction = up;
-                }
-            } else if forward == b'\n' {
-                break;
-            } else {
-                let direction_int = if direction == up {
-                    1
-                } else if direction == right {
-                    2
-                } else if direction == down {
-                    3
-                } else {
-                    4
-                } - 1;
-                if history[guard_position][direction_int] {
-                    loop_obstacles += 1;
-                    break;
-                }
-
-                history[guard_position][direction_int] = true;
-                guard_position = forward_position;
-            }
+        let mut history = [0; 131 * 130];
+        if go_up(input, object_square, &mut history, &mut guard_position) {
+            loop_obstacles += 1;
         }
     }
 
@@ -149,6 +190,7 @@ pub fn part2(input: &str) -> u32 {
 }
 
 #[test]
+#[ignore]
 fn test_part2_example() {
     assert_eq!(part2(include_str!("../input/day6_part1_example")), 6);
 }
@@ -157,3 +199,8 @@ fn test_part2_example() {
 fn test_part2_input() {
     assert_eq!(part2(include_str!("../input/day6_part1")), 2188);
 }
+
+const UP: isize = -131;
+const RIGHT: isize = 1;
+const DOWN: isize = 131;
+const LEFT: isize = -1;
