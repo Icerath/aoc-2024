@@ -25,11 +25,11 @@ pub fn part1(input: &str) -> u64 {
 }
 
 fn check_part1(expected: u64, operands: &[u16]) -> bool {
-    match operands {
+    match *operands {
         [] => unsafe { unreachable_unchecked() },
-        [last] => *last as u64 == expected,
-        [operands @ .., last] => {
-            let last = *last as u64;
+        [last] => last as u64 == expected,
+        [ref operands @ .., last] => {
+            let last = last as u64;
             (expected % last == 0 && check_part1(expected / last, operands))
                 || (expected >= last && check_part1(expected - last, operands))
         }
@@ -51,10 +51,10 @@ pub fn part2(input: &str) -> u64 {
 }
 
 fn check_part2(expected: u64, operands: &[u16]) -> bool {
-    match &operands {
-        [last] => *last as u64 == expected,
-        [operands @ .., last] => {
-            let last = *last as u64;
+    match *operands {
+        [last] => last as u64 == expected,
+        [ref operands @ .., last] => {
+            let last = last as u64;
             (expected % last == 0 && check_part2(expected / last, operands))
                 || (expected >= last && check_part2(expected - last, operands))
                 || {
