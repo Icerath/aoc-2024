@@ -55,7 +55,7 @@ fn test_part1_input() {
     assert_eq!(part1(include_str!("../input/day6_part1")), 5453);
 }
 
-fn go_up(
+unsafe fn go_up(
     input: &[u8],
     object_square: usize,
     history: &mut [u8; 130 * 131],
@@ -66,18 +66,18 @@ fn go_up(
             return false;
         }
         let next = *guard_position - 131;
-        if input[next] == b'#' || next == object_square {
+        if *input.get_unchecked(next) == b'#' || next == object_square {
             break;
         }
-        if history[next] & 1 > 0 {
+        if *history.get_unchecked(next) & 1 > 0 {
             return true;
         }
-        history[next] |= 1;
+        *history.get_unchecked_mut(next) |= 1;
         *guard_position = next;
     }
     go_right(input, object_square, history, guard_position)
 }
-fn go_right(
+unsafe fn go_right(
     input: &[u8],
     object_square: usize,
     history: &mut [u8; 130 * 131],
@@ -88,10 +88,12 @@ fn go_right(
     }
     let same_row = object_square / 131 == *guard_position / 131;
     loop {
-        if input[*guard_position + 1] == b'#' {
+        if *input.get_unchecked(*guard_position + 1) == b'#' {
             break;
         }
-        let block = u8x32::from_array(input[*guard_position..*guard_position + 32].try_into().unwrap());
+        let block = u8x32::from_array(
+            input.get_unchecked(*guard_position..*guard_position + 32).try_into().unwrap_unchecked(),
+        );
         let next_newline = 131 - (*guard_position % 131);
         let next_obstacle = block.simd_eq(u8x32::splat(b'#')).to_bitmask().trailing_zeros();
         let next_obstacle = if next_obstacle == 64 { 32 } else { next_obstacle };
@@ -107,7 +109,7 @@ fn go_right(
         if next_newline < next_obstacle {
             return false;
         }
-        *guard_position = next_obstacle.saturating_sub(1);
+        *guard_position = next_obstacle - 1;
 
         if same_row && inbetween {
             break;
@@ -120,7 +122,7 @@ fn go_right(
     go_down(input, object_square, history, guard_position)
 }
 
-fn go_down(
+unsafe fn go_down(
     input: &[u8],
     object_square: usize,
     history: &mut [u8; 130 * 131],
@@ -131,18 +133,18 @@ fn go_down(
             return false;
         }
         let next = *guard_position + 131;
-        if input[next] == b'#' || next == object_square {
+        if *input.get_unchecked(next) == b'#' || next == object_square {
             break;
         }
-        if history[next] & 4 > 0 {
+        if *history.get_unchecked_mut(next) & 4 > 0 {
             return true;
         }
-        history[next] |= 4;
+        *history.get_unchecked_mut(next) |= 4;
         *guard_position = next;
     }
     go_left(input, object_square, history, guard_position)
 }
-fn go_left(
+unsafe fn go_left(
     input: &[u8],
     object_square: usize,
     history: &mut [u8; 130 * 131],
@@ -153,13 +155,13 @@ fn go_left(
             return false;
         }
         let next = *guard_position - 1;
-        if input[next] == b'#' || next == object_square {
+        if *input.get_unchecked(next) == b'#' || next == object_square {
             break;
         }
-        if history[next] & 8 > 0 {
+        if history.get_unchecked(next) & 8 > 0 {
             return true;
         }
-        history[next] |= 8;
+        *history.get_unchecked_mut(next) |= 8;
         *guard_position = next;
     }
     go_up(input, object_square, history, guard_position)
@@ -206,7 +208,7 @@ pub fn part2(input: &str) -> u32 {
         }
         let mut guard_position = initial_guard_position;
         let mut history = [0; 131 * 130];
-        if go_up(input, object_square, &mut history, &mut guard_position) {
+        if unsafe { go_up(input, object_square, &mut history, &mut guard_position) } {
             loop_obstacles += 1;
         }
     }
