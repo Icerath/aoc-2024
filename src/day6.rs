@@ -192,6 +192,7 @@ unsafe fn go_down(
     history: &mut [u8; 130 * 131],
     guard_position: &mut usize,
 ) -> bool {
+    std::hint::assert_unchecked(input.len() == (131 * 130));
     loop {
         if input.len() < *guard_position + 131 {
             return false;
@@ -215,8 +216,12 @@ unsafe fn go_left(
     history: &mut [u8; 130 * 131],
     guard_position: &mut usize,
 ) -> bool {
+    if *guard_position < 131 {
+        return false;
+    }
+    let start_line = *guard_position / 131 * 131;
     loop {
-        if *guard_position % 131 == 0 {
+        if *guard_position == start_line {
             return false;
         }
         let next = *guard_position - 1;
