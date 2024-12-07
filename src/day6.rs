@@ -180,10 +180,10 @@ unsafe fn go_right(
             break;
         }
     }
-    if history[*guard_position] & 2 > 0 {
+    if history.get_unchecked(*guard_position) & 2 > 0 {
         return true;
     }
-    history[*guard_position] |= 2;
+    *history.get_unchecked_mut(*guard_position) |= 2;
     go_down(input, object_square, history, guard_position)
 }
 unsafe fn go_down(
