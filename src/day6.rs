@@ -1,3 +1,4 @@
+// TODO: Rewrite all this absolute crap.
 use std::{
     collections::HashSet,
     hint::unreachable_unchecked,
