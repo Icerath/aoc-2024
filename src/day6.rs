@@ -67,12 +67,12 @@ unsafe fn go_up(
         }
         let next = *guard_position - 131;
         if *input.get_unchecked(next) == b'#' || next == object_square {
+            if *history.get_unchecked(next) & 1 > 0 {
+                return true;
+            }
+            *history.get_unchecked_mut(next) |= 1;
             break;
         }
-        if *history.get_unchecked(next) & 1 > 0 {
-            return true;
-        }
-        *history.get_unchecked_mut(next) |= 1;
         *guard_position = next;
     }
     go_right(input, object_square, history, guard_position)
@@ -134,12 +134,13 @@ unsafe fn go_down(
         }
         let next = *guard_position + 131;
         if *input.get_unchecked(next) == b'#' || next == object_square {
+            if *history.get_unchecked_mut(next) & 4 > 0 {
+                return true;
+            }
+            *history.get_unchecked_mut(next) |= 4;
             break;
         }
-        if *history.get_unchecked_mut(next) & 4 > 0 {
-            return true;
-        }
-        *history.get_unchecked_mut(next) |= 4;
+
         *guard_position = next;
     }
     go_left(input, object_square, history, guard_position)
@@ -156,12 +157,13 @@ unsafe fn go_left(
         }
         let next = *guard_position - 1;
         if *input.get_unchecked(next) == b'#' || next == object_square {
+            if history.get_unchecked(next) & 8 > 0 {
+                return true;
+            }
+            *history.get_unchecked_mut(next) |= 8;
             break;
         }
-        if history.get_unchecked(next) & 8 > 0 {
-            return true;
-        }
-        *history.get_unchecked_mut(next) |= 8;
+
         *guard_position = next;
     }
     go_up(input, object_square, history, guard_position)
