@@ -83,37 +83,43 @@ fn go_right(
     history: &mut [u8; 130 * 131],
     guard_position: &mut usize,
 ) -> bool {
-    if *guard_position < (130 * 131 - 32) {
-        let same_row = object_square / 131 == *guard_position / 131;
-        loop {
-            if input[*guard_position + 1] == b'#' {
-                break;
-            }
-            let block = u8x32::from_array(input[*guard_position..*guard_position + 32].try_into().unwrap());
-            let next_newline = 131 - (*guard_position % 131);
-            let next_obstacle = block.simd_eq(u8x32::splat(b'#')).to_bitmask().trailing_zeros();
-            let next_obstacle = if next_obstacle == 64 { 32 } else { next_obstacle };
+    if *guard_position > (129 * 131) {
+        return false;
+    }
+    let same_row = object_square / 131 == *guard_position / 131;
+    loop {
+        if input[*guard_position + 1] == b'#' {
+            break;
+        }
+        let block = u8x32::from_array(input[*guard_position..*guard_position + 32].try_into().unwrap());
+        let next_newline = 131 - (*guard_position % 131);
+        let next_obstacle = block.simd_eq(u8x32::splat(b'#')).to_bitmask().trailing_zeros();
+        let next_obstacle = if next_obstacle == 64 { 32 } else { next_obstacle };
 
-            let mut next_obstacle = *guard_position + next_obstacle as usize;
-            let next_newline = *guard_position + next_newline;
+        let mut next_obstacle = *guard_position + next_obstacle as usize;
+        let next_newline = *guard_position + next_newline;
 
-            let inbetween = object_square > *guard_position && object_square < next_obstacle;
+        let inbetween = object_square > *guard_position && object_square < next_obstacle;
 
-            if same_row && inbetween {
-                next_obstacle = object_square;
-            }
+        if same_row && inbetween {
+            next_obstacle = object_square;
+        }
+        if next_newline < next_obstacle {
+            return false;
+        }
+        *guard_position = next_obstacle.saturating_sub(1);
 
-            if next_newline < next_obstacle {
-                return false;
-            }
-            *guard_position = next_obstacle.saturating_sub(1);
-            if same_row && inbetween {
-                break;
-            }
+        if same_row && inbetween {
+            break;
         }
     }
+    if history[*guard_position] & 2 > 0 {
+        return true;
+    }
+    history[*guard_position] |= 2;
     go_down(input, object_square, history, guard_position)
 }
+
 fn go_down(
     input: &[u8],
     object_square: usize,
