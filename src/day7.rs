@@ -1,5 +1,5 @@
 #![expect(clippy::cast_possible_truncation)]
-use std::hint::unreachable_unchecked;
+use std::hint::{assert_unchecked, unreachable_unchecked};
 
 macro_rules! impl_part {
     ($input: ident, $check: ident) => {{
@@ -21,15 +21,16 @@ macro_rules! impl_part {
 }
 
 pub fn part1(input: &str) -> u64 {
-    impl_part!(input, check_part1)
+    unsafe { impl_part!(input, check_part1) }
 }
 
-fn check_part1(expected: u64, operands: &[u16]) -> bool {
+unsafe fn check_part1(expected: u64, operands: &[u16]) -> bool {
     match *operands {
-        [] => unsafe { unreachable_unchecked() },
+        [] => unreachable_unchecked(),
         [last] => last as u64 == expected,
         [ref operands @ .., last] => {
             let last = last as u64;
+            assert_unchecked(last != 0);
             (expected % last == 0 && check_part1(expected / last, operands))
                 || (expected >= last && check_part1(expected - last, operands))
         }
@@ -47,21 +48,23 @@ fn test_part1_input() {
 }
 
 pub fn part2(input: &str) -> u64 {
-    impl_part!(input, check_part2)
+    unsafe { impl_part!(input, check_part2) }
 }
 
-fn check_part2(expected: u64, operands: &[u16]) -> bool {
+unsafe fn check_part2(expected: u64, operands: &[u16]) -> bool {
     match *operands {
         [last] => last as u64 == expected,
         [ref operands @ .., last] => {
-            let last = last as u64;
-            (expected % last == 0 && check_part2(expected / last, operands))
-                || (expected >= last && check_part2(expected - last, operands))
+            assert_unchecked(last != 0);
+            (expected % last as u64 == 0 && check_part2(expected / last as u64, operands))
+                || (expected >= last as u64 && check_part2(expected - last as u64, operands))
                 || {
-                    let concat = 10_u64.pow(last.ilog10() + 1);
-                    (expected % concat) == last && check_part2(expected / concat, operands)
+                    let concat = fast_10pow_log10(last);
+                    assert_unchecked(concat != 0);
+                    (expected % concat) == last as u64 && check_part2(expected / concat, operands)
                 }
         }
+
         _ => unsafe { unreachable_unchecked() },
     }
 }
@@ -79,4 +82,14 @@ fn test_part2_input() {
 #[inline(always)]
 fn parse_int(n: &[u8]) -> u64 {
     unsafe { std::str::from_utf8_unchecked(n) }.parse::<u64>().unwrap()
+}
+
+#[inline]
+unsafe fn fast_10pow_log10(n: u16) -> u64 {
+    match n {
+        0..10 => 10,
+        10..100 => 100,
+        100..1000 => 1000,
+        _ => unreachable_unchecked(),
+    }
 }
