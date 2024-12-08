@@ -1,19 +1,41 @@
-#![expect(clippy::cast_possible_truncation)]
 use std::hint::{assert_unchecked, unreachable_unchecked};
 
 macro_rules! impl_part {
     ($input: ident, $check: ident) => {{
+        let mut input = $input.as_bytes();
         let mut sum = 0;
         let mut operands_buf: Vec<u16> = vec![];
-        for line in $input[..$input.len() - 1].as_bytes().split(|&b| b == b'\n') {
-            let sep = line.iter().position(|&b| b == b':').unwrap();
-            let operands = &line[sep + 2..];
-            let expected = parse_int(&line[..sep]);
+        loop {
             operands_buf.clear();
-            operands_buf.extend(operands.split(|&b| b == b' ').map(|s| parse_int(s) as u16));
-
+            let mut expected = (input[0] - b'0') as u64;
+            input = &input[1..];
+            while input[0] != b':' {
+                expected = expected * 10 + (input[0] - b'0') as u64;
+                input = &input[1..];
+            }
+            input = &input[2..];
+            let mut operand = (input[0] - b'0') as u16;
+            input = &input[1..];
+            loop {
+                match input[0] {
+                    b'\n' => {
+                        operands_buf.push(operand);
+                        input = &input[1..];
+                        break;
+                    }
+                    b' ' => {
+                        operands_buf.push(operand);
+                        operand = 0;
+                    }
+                    _ => operand = operand * 10 + (input[0] - b'0') as u16,
+                }
+                input = &input[1..];
+            }
             if $check(expected, &operands_buf) {
                 sum += expected;
+            }
+            if input.is_empty() {
+                break;
             }
         }
         sum
@@ -77,11 +99,6 @@ fn test_part2_example() {
 #[test]
 fn test_part2_input() {
     assert_eq!(part2(include_str!("../input/day7_part1")), 492_383_931_650_959);
-}
-
-#[inline(always)]
-fn parse_int(n: &[u8]) -> u64 {
-    unsafe { std::str::from_utf8_unchecked(n) }.parse::<u64>().unwrap()
 }
 
 #[inline]
