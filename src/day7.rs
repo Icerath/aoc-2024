@@ -90,7 +90,7 @@ unsafe fn check_part2(expected: u64, operands: &[u16]) -> bool {
                 }
         }
 
-        _ => unsafe { unreachable_unchecked() },
+        _ => unreachable_unchecked(),
     }
 }
 
