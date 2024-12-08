@@ -2,39 +2,45 @@ use std::hint::{assert_unchecked, unreachable_unchecked};
 
 macro_rules! impl_part {
     ($input: ident, $check: ident) => {{
-        let mut input = $input.as_bytes();
+        let input = $input.as_bytes();
         let mut sum = 0;
-        let mut operands_buf: Vec<u16> = vec![];
+        let mut operands_buf = [0u16; 32];
+        let operands_buf: *mut u16 = (&raw mut operands_buf).cast::<u16>();
+        let mut num_operands;
+        let input_end = input.as_ptr().add(input.len());
+        let mut input = input.as_ptr();
         loop {
-            operands_buf.clear();
-            let mut expected = (input[0] - b'0') as u64;
-            input = &input[1..];
-            while input[0] != b':' {
-                expected = expected * 10 + (input[0] - b'0') as u64;
-                input = &input[1..];
+            num_operands = 0;
+            let mut expected = (input.read() - b'0') as u64;
+            input = input.add(1);
+            while input.read() != b':' {
+                expected = expected * 10 + (input.read() - b'0') as u64;
+                input = input.add(1);
             }
-            input = &input[2..];
-            let mut operand = (input[0] - b'0') as u16;
-            input = &input[1..];
+            input = input.add(2);
+            let mut operand = (input.read() - b'0') as u16;
+            input = input.add(1);
             loop {
-                match input[0] {
+                match input.read() {
                     b'\n' => {
-                        operands_buf.push(operand);
-                        input = &input[1..];
+                        *operands_buf.add(num_operands) = operand;
+                        num_operands += 1;
+                        input = input.add(1);
                         break;
                     }
                     b' ' => {
-                        operands_buf.push(operand);
+                        *operands_buf.add(num_operands) = operand;
+                        num_operands += 1;
                         operand = 0;
                     }
-                    _ => operand = operand * 10 + (input[0] - b'0') as u16,
+                    _ => operand = operand * 10 + (input.read() - b'0') as u16,
                 }
-                input = &input[1..];
+                input = input.add(1);
             }
-            if $check(expected, &operands_buf) {
+            if $check(expected, std::slice::from_raw_parts(operands_buf, num_operands)) {
                 sum += expected;
             }
-            if input.is_empty() {
+            if input == input_end {
                 break;
             }
         }
