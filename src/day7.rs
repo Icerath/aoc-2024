@@ -18,25 +18,22 @@ macro_rules! impl_part {
                 input = input.add(1);
             }
             input = input.add(2);
-            let mut operand = (input.read() - b'0') as u16;
-            input = input.add(1);
-            loop {
-                match input.read() {
-                    b'\n' => {
-                        *operands_buf.add(num_operands) = operand;
-                        num_operands += 1;
-                        input = input.add(1);
-                        break;
-                    }
-                    b' ' => {
-                        *operands_buf.add(num_operands) = operand;
-                        num_operands += 1;
-                        operand = 0;
-                    }
-                    _ => operand = operand * 10 + (input.read() - b'0') as u16,
+            let mut operand = 0;
+            while input.read() != b'\n' {
+                let next = input.read().wrapping_sub(b'0') as u16;
+                if next == b' '.wrapping_sub(b'0') as u16 {
+                    *operands_buf.add(num_operands) = operand;
+                    num_operands += 1;
+                    operand = 0;
+                } else {
+                    operand = operand * 10 + next;
                 }
                 input = input.add(1);
             }
+            *operands_buf.add(num_operands) = operand;
+            num_operands += 1;
+            input = input.add(1);
+
             if $check(expected, std::slice::from_raw_parts(operands_buf, num_operands)) {
                 sum += expected;
             }
