@@ -6,6 +6,7 @@ const MAX_PAIRS: usize = 16;
 unsafe fn both_parts<const PART1: bool>(input: &[u8]) -> u32 {
     let mut antennas = [0u16; 62 * MAX_PAIRS];
     let mut counts = [0u8; 62];
+    let mut antinodes = [0u64; 64];
     for y in 0..50 {
         let chunk = input.get_unchecked(y as usize * 51..);
         let block = if y == 49 {
@@ -22,21 +23,14 @@ unsafe fn both_parts<const PART1: bool>(input: &[u8]) -> u32 {
             non_dots &= non_dots - 1;
 
             let count_idx = byte_compress(block[x as usize]) as usize;
-            let antenna_idx = count_idx * MAX_PAIRS + (*counts.get_unchecked(count_idx) as usize);
-            *counts.get_unchecked_mut(count_idx) += 1;
+            let count = *counts.get_unchecked(count_idx) as usize;
+            let antenna_idx = count_idx * MAX_PAIRS + count;
             *antennas.get_unchecked_mut(antenna_idx) = u16::from_ne_bytes([y, x]);
-        }
-    }
-    let mut antinodes = [0u64; 64];
-    for (i, &count) in counts.iter().enumerate() {
-        if count == 0 {
-            continue;
-        }
-        let i = i * MAX_PAIRS;
-        for j in 0..count - 1 {
-            for k in j + 1..count {
-                let [lhs_y, lhs_x] = antennas.get_unchecked(i + j as usize).to_ne_bytes();
-                let [rhs_y, rhs_x] = antennas.get_unchecked(i + k as usize).to_ne_bytes();
+            *counts.get_unchecked_mut(count_idx) += 1;
+
+            for i in 0..count {
+                let [lhs_y, lhs_x] = [y, x];
+                let [rhs_y, rhs_x] = antennas.get_unchecked(count_idx * MAX_PAIRS + i).to_ne_bytes();
 
                 let [lhs_y, lhs_x] = [lhs_y as i8, lhs_x as i8];
                 let [rhs_y, rhs_x] = [rhs_y as i8, rhs_x as i8];
@@ -46,12 +40,13 @@ unsafe fn both_parts<const PART1: bool>(input: &[u8]) -> u32 {
                 if PART1 {
                     let y = lhs_y + dy;
                     let x = lhs_x + dx;
-                    if (0..50).contains(&y) && (0..50).contains(&x) {
+                    if y < 50 && (0..50).contains(&x) {
                         *antinodes.get_unchecked_mut(y as usize) |= 1 << x;
                     }
                     let y = rhs_y - dy;
                     let x = rhs_x - dx;
-                    if (0..50).contains(&y) && (0..50).contains(&x) {
+
+                    if y >= 0 && (0..50).contains(&x) {
                         *antinodes.get_unchecked_mut(y as usize) |= 1 << x;
                     }
                 } else {
@@ -60,7 +55,7 @@ unsafe fn both_parts<const PART1: bool>(input: &[u8]) -> u32 {
                     for i in 1..49 {
                         let y = lhs_y + i * dy;
                         let x = lhs_x + i * dx;
-                        if !(0..50).contains(&y) || !(0..50).contains(&x) {
+                        if y >= 50 || !(0..50).contains(&x) {
                             break;
                         }
                         *antinodes.get_unchecked_mut(y as usize) |= 1 << x;
@@ -68,7 +63,7 @@ unsafe fn both_parts<const PART1: bool>(input: &[u8]) -> u32 {
                     for i in 1..49 {
                         let y = lhs_y - i * dy;
                         let x = lhs_x - i * dx;
-                        if !(0..50).contains(&y) || !(0..50).contains(&x) {
+                        if y < 0 || !(0..50).contains(&x) {
                             break;
                         }
                         *antinodes.get_unchecked_mut(y as usize) |= 1 << x;
