@@ -6,7 +6,7 @@ const MAX_PAIRS: usize = 16;
 unsafe fn both_parts<const PART1: bool>(input: &[u8]) -> u32 {
     let mut antennas = [0u16; 62 * MAX_PAIRS];
     let mut counts = [0u8; 62];
-    let mut antinodes = [0u64; 64];
+    let mut antinodes = [0u64; 50];
     for y in 0..50 {
         let chunk = input.get_unchecked(y as usize * 51..);
         let block = if y == 49 {
