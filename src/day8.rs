@@ -106,8 +106,8 @@ fn test_part2_input() {
 
 #[inline(always)]
 unsafe fn byte_compress(byte: u8) -> u8 {
-    const LUT: [u8; 255] = {
-        let mut lut = [0; 255];
+    const LUT: [u8; 256] = {
+        let mut lut = [0; 256];
         let mut i = 0u8;
         while i < 255 {
             lut[i as usize] = match i {
