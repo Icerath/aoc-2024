@@ -22,7 +22,7 @@ unsafe fn both_parts<const PART1: bool>(input: &[u8]) -> u32 {
             let x = non_dots.trailing_zeros() as u8;
             non_dots &= non_dots - 1;
 
-            let count_idx = byte_compress(block[x as usize]) as usize;
+            let count_idx = byte_compress(*block.as_array().get_unchecked(x as usize)) as usize;
             let count = *counts.get_unchecked(count_idx) as usize;
             let antenna_idx = count_idx * MAX_PAIRS + count;
             *antennas.get_unchecked_mut(antenna_idx) = u16::from_ne_bytes([y, x]);
