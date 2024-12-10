@@ -3,7 +3,7 @@ use std::{cmp::Reverse, collections::BinaryHeap};
 const INPUT_SIZE: usize = 19999;
 
 pub fn part1(input: &str) -> usize {
-    unsafe { part1_inner(&input.as_bytes()[..input.len() - 1]) }
+    unsafe { part1_inner(input.trim().as_bytes()) }
 }
 
 unsafe fn part1_inner(input: &[u8]) -> usize {
