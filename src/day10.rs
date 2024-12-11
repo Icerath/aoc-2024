@@ -5,14 +5,6 @@ pub fn part1(input: &str) -> u32 {
     unsafe { part1_inner(input.as_bytes()) }
 }
 
-#[inline(always)]
-unsafe fn line_len(input: &[u8]) -> usize {
-    1 + u8x64::from_array(input[..64].try_into().unwrap_unchecked())
-        .simd_eq(u8x64::splat(b'\n'))
-        .to_bitmask()
-        .trailing_zeros() as usize
-}
-
 unsafe fn part1_inner(input: &[u8]) -> u32 {
     let line_len = line_len(input);
     let mut remaining = input;
@@ -188,13 +180,6 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
     sum
 }
 
-#[inline(always)]
-fn simd_eq(lhs: u8x64, val: u8) -> u8x64 {
-    let mut vec = lhs.simd_eq(Simd::splat(val)).select(Simd::splat(1u8), Simd::splat(0));
-    vec[63] = 0;
-    vec
-}
-
 #[test]
 #[ignore]
 fn test_part2_example() {
@@ -204,4 +189,19 @@ fn test_part2_example() {
 #[test]
 fn test_part2_input() {
     assert_eq!(part2(include_str!("../input/day10_part1")), 1225);
+}
+
+#[inline(always)]
+unsafe fn line_len(input: &[u8]) -> usize {
+    1 + u8x64::from_array(input.get_unchecked(..64).try_into().unwrap_unchecked())
+        .simd_eq(u8x64::splat(b'\n'))
+        .to_bitmask()
+        .trailing_zeros() as usize
+}
+
+#[inline(always)]
+fn simd_eq(lhs: u8x64, val: u8) -> u8x64 {
+    let mut vec = lhs.simd_eq(Simd::splat(val)).select(Simd::splat(1u8), Simd::splat(0));
+    vec[63] = 0;
+    vec
 }
