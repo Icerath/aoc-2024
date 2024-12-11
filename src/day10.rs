@@ -1,14 +1,39 @@
-use std::simd::{cmp::SimdPartialEq, u8x64, Simd};
+use std::simd::{cmp::SimdPartialEq, u8x32, u8x64, Simd};
+
+const INPUT_SIZE: usize = 45 * 46;
 
 pub fn part1(input: &str) -> u32 {
-    let input = input.as_bytes();
+    unsafe { part1_inner(input.as_bytes()) }
+}
+unsafe fn part1_inner(input: &[u8]) -> u32 {
+    let mut remaining = input;
     let mut sum = 0;
-    for (i, &b) in input.iter().enumerate() {
+
+    let mut places_visted = [false; 46 * 45];
+
+    while remaining.len() >= 32 {
+        let offset = INPUT_SIZE - remaining.len();
+        let block = u8x32::from_array(remaining[..32].try_into().unwrap_unchecked());
+
+        let mut zeros = block.simd_eq(Simd::splat(b'0')).to_bitmask();
+
+        while zeros != 0 {
+            let i = zeros.trailing_zeros() as usize + offset;
+            zeros &= zeros - 1;
+
+            sum += trail_count_from(input, i, 0, &mut places_visted);
+            places_visted.fill(false);
+        }
+        remaining = &remaining[32..];
+    }
+    let offset = INPUT_SIZE - remaining.len();
+    for (i, &b) in remaining.iter().enumerate() {
+        let i = offset + i;
         if b != b'0' {
             continue;
         }
-        let mut places_visted = [false; 46 * 45];
         sum += trail_count_from(input, i, 0, &mut places_visted);
+        places_visted.fill(false);
     }
     sum
 }
