@@ -1,25 +1,31 @@
 #![expect(clippy::cast_possible_truncation)]
 use std::simd::{cmp::SimdPartialEq, u8x32, u8x64, Simd};
 
-const INPUT_SIZE: usize = 45 * 46;
-const LINE_LEN: usize = 46;
-
 pub fn part1(input: &str) -> u32 {
     unsafe { part1_inner(input.as_bytes()) }
 }
 
+#[inline(always)]
+unsafe fn line_len(input: &[u8]) -> usize {
+    1 + u8x64::from_array(input[..64].try_into().unwrap_unchecked())
+        .simd_eq(u8x64::splat(b'\n'))
+        .to_bitmask()
+        .trailing_zeros() as usize
+}
+
 unsafe fn part1_inner(input: &[u8]) -> u32 {
+    let line_len = line_len(input);
     let mut remaining = input;
-    let mut places_visited = [false; INPUT_SIZE];
+    let mut places_visited = vec![false; input.len()];
     let mut sum = 0;
     macro_rules! loop_body {
         ($block: expr) => {
-            let offset = (INPUT_SIZE - remaining.len()) as u16;
+            let offset = (input.len() - remaining.len()) as u16;
             let mut zeros = $block.simd_eq(Simd::splat(b'0')).to_bitmask();
             while zeros != 0 {
                 let i = zeros.trailing_zeros() as u16 + offset;
                 zeros &= zeros - 1;
-                sum += trail(input, i, &mut places_visited);
+                sum += trail(input, i, &mut places_visited, line_len);
                 places_visited.fill(false);
             }
         };
@@ -33,7 +39,7 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
     sum
 }
 
-unsafe fn trail(input: &[u8], initial_position: u16, places_visited: &mut [bool; INPUT_SIZE]) -> u32 {
+unsafe fn trail(input: &[u8], initial_position: u16, places_visited: &mut [bool], line_len: usize) -> u32 {
     let mut stack_positions = [0u16; 256];
     let mut stack_digits = [0u8; 256];
     let mut stack_len = 1;
@@ -64,11 +70,11 @@ unsafe fn trail(input: &[u8], initial_position: u16, places_visited: &mut [bool;
         if position != 0 {
             push!(position - 1);
         }
-        if position >= LINE_LEN {
-            push!(position - LINE_LEN);
+        if position >= line_len {
+            push!(position - line_len);
         }
-        if position < (INPUT_SIZE - LINE_LEN) {
-            push!(position + LINE_LEN);
+        if position < (input.len() - line_len) {
+            push!(position + line_len);
         }
     }
     sum
@@ -90,16 +96,17 @@ pub fn part2(input: &str) -> u32 {
 }
 
 unsafe fn part2_inner(input: &[u8]) -> u32 {
-    let mut arrays = [[u8x64::splat(0); 45]; 9];
+    let line_len = line_len(input);
+    let mut arrays = [[u8x64::splat(0); 64]; 9];
 
-    for i in 0..44 {
-        let line = u8x64::from_array(input[i * 46..i * 46 + 64].try_into().unwrap_unchecked());
+    for i in 0..line_len - 2 {
+        let line = u8x64::from_array(input[i * line_len..i * line_len + 64].try_into().unwrap_unchecked());
         let matches = simd_eq(line, b'9');
         arrays[8][i] = matches;
     }
     {
-        let i = 44;
-        let line = u8x64::load_or_default(&input[i * 46..]);
+        let i = line_len - 2;
+        let line = u8x64::load_or_default(&input[i * line_len..]);
         let matches = simd_eq(line, b'9');
         arrays[8][i] = matches;
     }
@@ -113,8 +120,8 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
             let down_neighbors = arrays[$digit][i + 1];
             arrays[$digit - 1][i] = (left_neighbors + right_neighbors + down_neighbors) * matches;
         }
-        for i in 1..44 {
-            let line = u8x64::from_array(input[i * 46..i * 46 + 64].try_into().unwrap_unchecked());
+        for i in 1..line_len - 2 {
+            let line = u8x64::from_array(input[i * line_len..i * line_len + 64].try_into().unwrap_unchecked());
             let matches = simd_eq(line, $digit + b'0');
             let left_neighbors = arrays[$digit][i].rotate_elements_left::<1>();
             let right_neighbors = arrays[$digit][i].rotate_elements_right::<1>();
@@ -124,8 +131,8 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
                 (left_neighbors + right_neighbors + up_neighbors + down_neighbors) * matches;
         }
         {
-            let i = 44;
-            let line = u8x64::load_or_default(&input[i * 46..]);
+            let i = line_len - 2;
+            let line = u8x64::load_or_default(&input[i * line_len..]);
             let matches = simd_eq(line, $digit + b'0');
             let left_neighbors = arrays[$digit][i].rotate_elements_left::<1>();
             let right_neighbors = arrays[$digit][i].rotate_elements_right::<1>();
@@ -152,27 +159,27 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
         let right_neighbors = arrays[0][i].rotate_elements_right::<1>();
         let down_neighbors = arrays[0][i + 1];
         let total = (left_neighbors + right_neighbors + down_neighbors) * matches;
-        sum += total[..45].iter().map(|&x| x as u32).sum::<u32>();
+        sum += total[..line_len - 1].iter().map(|&x| x as u32).sum::<u32>();
     }
-    for i in 1..44 {
-        let line = u8x64::from_array(input[i * 46..i * 46 + 64].try_into().unwrap_unchecked());
+    for i in 1..line_len - 2 {
+        let line = u8x64::from_array(input[i * line_len..i * line_len + 64].try_into().unwrap_unchecked());
         let matches = simd_eq(line, b'0');
         let left_neighbors = arrays[0][i].rotate_elements_left::<1>();
         let right_neighbors = arrays[0][i].rotate_elements_right::<1>();
         let up_neighbors = arrays[0][i - 1];
         let down_neighbors = arrays[0][i + 1];
         let total = (left_neighbors + right_neighbors + up_neighbors + down_neighbors) * matches;
-        sum += total[..45].iter().map(|&x| x as u32).sum::<u32>();
+        sum += total[..line_len - 1].iter().map(|&x| x as u32).sum::<u32>();
     }
     {
-        let i = 44;
-        let line = u8x64::load_or_default(&input[i * 46..]);
+        let i = line_len - 2;
+        let line = u8x64::load_or_default(&input[i * line_len..]);
         let matches = simd_eq(line, b'0');
         let left_neighbors = arrays[0][i].rotate_elements_left::<1>();
         let right_neighbors = arrays[0][i].rotate_elements_right::<1>();
         let up_neighbors = arrays[0][i - 1];
         let total = (left_neighbors + right_neighbors + up_neighbors) * matches;
-        sum += total[..45].iter().map(|&x| x as u32).sum::<u32>();
+        sum += total[..line_len - 1].iter().map(|&x| x as u32).sum::<u32>();
     }
     sum
 }
