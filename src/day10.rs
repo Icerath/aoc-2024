@@ -100,44 +100,50 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
     let mut arrays = [[u8x64::splat(0); 64]; 9];
 
     for i in 0..line_len - 2 {
-        let line = u8x64::from_array(input[i * line_len..i * line_len + 64].try_into().unwrap_unchecked());
+        let line = u8x64::from_array(
+            input.get_unchecked(i * line_len..i * line_len + 64).try_into().unwrap_unchecked(),
+        );
         let matches = simd_eq(line, b'9');
-        arrays[8][i] = matches;
+        *arrays[8].get_unchecked_mut(i) = matches;
     }
     {
         let i = line_len - 2;
-        let line = u8x64::load_or_default(&input[i * line_len..]);
+        let line = u8x64::load_or_default(input.get_unchecked(i * line_len..));
         let matches = simd_eq(line, b'9');
-        arrays[8][i] = matches;
+        *arrays[8].get_unchecked_mut(i) = matches;
     }
     macro_rules! impl_digit {
         ($digit: literal) => {{
             let i = 0;
-            let line = u8x64::from_array(input[0..64].try_into().unwrap_unchecked());
+            let line = u8x64::from_array(input.get_unchecked(0..64).try_into().unwrap_unchecked());
             let matches = simd_eq(line, $digit + b'0');
-            let left_neighbors = arrays[$digit][i].rotate_elements_left::<1>();
-            let right_neighbors = arrays[$digit][i].rotate_elements_right::<1>();
-            let down_neighbors = arrays[$digit][i + 1];
-            arrays[$digit - 1][i] = (left_neighbors + right_neighbors + down_neighbors) * matches;
+            let left_neighbors = arrays[$digit].get_unchecked(i).rotate_elements_left::<1>();
+            let right_neighbors = arrays[$digit].get_unchecked(i).rotate_elements_right::<1>();
+            let down_neighbors = *arrays[$digit].get_unchecked(i + 1);
+            *arrays[$digit - 1].get_unchecked_mut(i) =
+                (left_neighbors + right_neighbors + down_neighbors) * matches;
         }
         for i in 1..line_len - 2 {
-            let line = u8x64::from_array(input[i * line_len..i * line_len + 64].try_into().unwrap_unchecked());
+            let line = u8x64::from_array(
+                input.get_unchecked(i * line_len..i * line_len + 64).try_into().unwrap_unchecked(),
+            );
             let matches = simd_eq(line, $digit + b'0');
-            let left_neighbors = arrays[$digit][i].rotate_elements_left::<1>();
-            let right_neighbors = arrays[$digit][i].rotate_elements_right::<1>();
-            let up_neighbors = arrays[$digit][i - 1];
-            let down_neighbors = arrays[$digit][i + 1];
-            arrays[$digit - 1][i] =
+            let left_neighbors = arrays[$digit].get_unchecked(i).rotate_elements_left::<1>();
+            let right_neighbors = arrays[$digit].get_unchecked(i).rotate_elements_right::<1>();
+            let up_neighbors = *arrays[$digit].get_unchecked(i - 1);
+            let down_neighbors = *arrays[$digit].get_unchecked(i + 1);
+            *arrays[$digit - 1].get_unchecked_mut(i) =
                 (left_neighbors + right_neighbors + up_neighbors + down_neighbors) * matches;
         }
         {
             let i = line_len - 2;
-            let line = u8x64::load_or_default(&input[i * line_len..]);
+            let line = u8x64::load_or_default(input.get_unchecked(i * line_len..));
             let matches = simd_eq(line, $digit + b'0');
-            let left_neighbors = arrays[$digit][i].rotate_elements_left::<1>();
-            let right_neighbors = arrays[$digit][i].rotate_elements_right::<1>();
-            let up_neighbors = arrays[$digit][i - 1];
-            arrays[$digit - 1][i] = (left_neighbors + right_neighbors + up_neighbors) * matches;
+            let left_neighbors = arrays[$digit].get_unchecked(i).rotate_elements_left::<1>();
+            let right_neighbors = arrays[$digit].get_unchecked(i).rotate_elements_right::<1>();
+            let up_neighbors = *arrays[$digit].get_unchecked(i - 1);
+            *arrays[$digit - 1].get_unchecked_mut(i) =
+                (left_neighbors + right_neighbors + up_neighbors) * matches;
         }};
     }
 
@@ -153,33 +159,35 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
     let mut sum = 0;
     {
         let i = 0;
-        let line = u8x64::from_array(input[0..64].try_into().unwrap_unchecked());
+        let line = u8x64::from_array(input.get_unchecked(0..64).try_into().unwrap_unchecked());
         let matches = simd_eq(line, b'0');
-        let left_neighbors = arrays[0][i].rotate_elements_left::<1>();
-        let right_neighbors = arrays[0][i].rotate_elements_right::<1>();
-        let down_neighbors = arrays[0][i + 1];
+        let left_neighbors = arrays[0].get_unchecked(i).rotate_elements_left::<1>();
+        let right_neighbors = arrays[0].get_unchecked(i).rotate_elements_right::<1>();
+        let down_neighbors = *arrays[0].get_unchecked(i + 1);
         let total = (left_neighbors + right_neighbors + down_neighbors) * matches;
-        sum += total[..line_len - 1].iter().map(|&x| x as u32).sum::<u32>();
+        sum += total.as_array().get_unchecked(..line_len - 1).iter().map(|&x| x as u32).sum::<u32>();
     }
     for i in 1..line_len - 2 {
-        let line = u8x64::from_array(input[i * line_len..i * line_len + 64].try_into().unwrap_unchecked());
+        let line = u8x64::from_array(
+            input.get_unchecked(i * line_len..i * line_len + 64).try_into().unwrap_unchecked(),
+        );
         let matches = simd_eq(line, b'0');
-        let left_neighbors = arrays[0][i].rotate_elements_left::<1>();
-        let right_neighbors = arrays[0][i].rotate_elements_right::<1>();
-        let up_neighbors = arrays[0][i - 1];
-        let down_neighbors = arrays[0][i + 1];
+        let left_neighbors = arrays[0].get_unchecked(i).rotate_elements_left::<1>();
+        let right_neighbors = arrays[0].get_unchecked(i).rotate_elements_right::<1>();
+        let up_neighbors = arrays[0].get_unchecked(i - 1);
+        let down_neighbors = arrays[0].get_unchecked(i + 1);
         let total = (left_neighbors + right_neighbors + up_neighbors + down_neighbors) * matches;
-        sum += total[..line_len - 1].iter().map(|&x| x as u32).sum::<u32>();
+        sum += total.as_array().get_unchecked(..line_len - 1).iter().map(|&x| x as u32).sum::<u32>();
     }
     {
         let i = line_len - 2;
-        let line = u8x64::load_or_default(&input[i * line_len..]);
+        let line = u8x64::load_or_default(input.get_unchecked(i * line_len..));
         let matches = simd_eq(line, b'0');
-        let left_neighbors = arrays[0][i].rotate_elements_left::<1>();
-        let right_neighbors = arrays[0][i].rotate_elements_right::<1>();
-        let up_neighbors = arrays[0][i - 1];
+        let left_neighbors = arrays[0].get_unchecked(i).rotate_elements_left::<1>();
+        let right_neighbors = arrays[0].get_unchecked(i).rotate_elements_right::<1>();
+        let up_neighbors = *arrays[0].get_unchecked(i - 1);
         let total = (left_neighbors + right_neighbors + up_neighbors) * matches;
-        sum += total[..line_len - 1].iter().map(|&x| x as u32).sum::<u32>();
+        sum += total.as_array().get_unchecked(..line_len - 1).iter().map(|&x| x as u32).sum::<u32>();
     }
     sum
 }
