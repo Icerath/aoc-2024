@@ -29,9 +29,7 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
     let offset = INPUT_SIZE - remaining.len();
     for (i, &b) in remaining.iter().enumerate() {
         let i = offset + i;
-        if b != b'0' {
-            continue;
-        }
+        let b'0' = b else { continue };
         sum += trail_count_from(input, i, 0, &mut places_visted);
         places_visted.fill(false);
     }
