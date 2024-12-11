@@ -1,28 +1,28 @@
+#![expect(clippy::cast_possible_truncation)]
 use std::simd::{cmp::SimdPartialEq, u8x32, u8x64, Simd};
 
 const INPUT_SIZE: usize = 45 * 46;
+const LINE_LEN: usize = 46;
 
 pub fn part1(input: &str) -> u32 {
     unsafe { part1_inner(input.as_bytes()) }
 }
+
 unsafe fn part1_inner(input: &[u8]) -> u32 {
     let mut remaining = input;
     let mut sum = 0;
 
-    let mut places_visted = [false; 46 * 45];
-
+    let mut places_visited = [false; INPUT_SIZE];
     while remaining.len() >= 32 {
-        let offset = INPUT_SIZE - remaining.len();
+        let offset = (INPUT_SIZE - remaining.len()) as u16;
         let block = u8x32::from_array(remaining.get_unchecked(..32).try_into().unwrap_unchecked());
 
         let mut zeros = block.simd_eq(Simd::splat(b'0')).to_bitmask();
-
         while zeros != 0 {
-            let i = zeros.trailing_zeros() as usize + offset;
+            let i = zeros.trailing_zeros() as u16 + offset;
             zeros &= zeros - 1;
-
-            sum += trail0(input, i, &mut places_visted);
-            places_visted.fill(false);
+            sum += trail(input, i, &mut places_visited);
+            places_visited.fill(false);
         }
         remaining = remaining.get_unchecked(32..);
     }
@@ -30,66 +30,49 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
     for (i, &b) in remaining.iter().enumerate() {
         let i = offset + i;
         let b'0' = b else { continue };
-        sum += trail0(input, i, &mut places_visted);
-        places_visted.fill(false);
+        sum += trail(input, i as _, &mut places_visited);
+        places_visited.fill(false);
     }
     sum
 }
 
-macro_rules! impl_trail {
-    ($n: literal, $fn_name: ident, $call: ident) => {
-        #[inline]
-        unsafe fn $fn_name(input: &[u8], position: usize, places_visted: &mut [bool]) -> u32 {
-            if *places_visted.get_unchecked(position) || *input.get_unchecked(position) != ($n + b'0') {
-                return 0;
-            }
-            *places_visted.get_unchecked_mut(position) = true;
-            let mut sum = 0;
-            sum += $call(input, position + 1, places_visted);
-            if position != 0 {
-                sum += $call(input, position - 1, places_visted);
-            }
-            if position >= LINE_LEN {
-                sum += $call(input, position - LINE_LEN, places_visted);
-            }
-            if position < (input.len() - LINE_LEN) {
-                sum += $call(input, position + LINE_LEN, places_visted);
-            }
-            sum
-        }
-    };
-}
+unsafe fn trail(input: &[u8], initial_position: u16, places_visited: &mut [bool; INPUT_SIZE]) -> u32 {
+    let mut stack_positions = [0u16; 256];
+    let mut stack_digits = [0u8; 256];
+    let mut stack_len = 1;
+    stack_positions[0] = initial_position;
+    stack_digits[0] = b'0';
 
-#[inline]
-unsafe fn trail9(input: &[u8], position: usize, places_visted: &mut [bool]) -> u32 {
-    if *places_visted.get_unchecked(position) || *input.get_unchecked(position) != b'9' {
-        return 0;
-    }
-    *places_visted.get_unchecked_mut(position) = true;
-    1
-}
-
-impl_trail!(8, trail8, trail9);
-impl_trail!(7, trail7, trail8);
-impl_trail!(6, trail6, trail7);
-impl_trail!(5, trail5, trail6);
-impl_trail!(4, trail4, trail5);
-impl_trail!(3, trail3, trail4);
-impl_trail!(2, trail2, trail3);
-impl_trail!(1, trail1, trail2);
-
-#[inline]
-unsafe fn trail0(input: &[u8], position: usize, places_visted: &mut [bool]) -> u32 {
     let mut sum = 0;
-    sum += trail1(input, position + 1, places_visted);
-    if position != 0 {
-        sum += trail1(input, position - 1, places_visted);
-    }
-    if position >= LINE_LEN {
-        sum += trail1(input, position - LINE_LEN, places_visted);
-    }
-    if position < (input.len() - LINE_LEN) {
-        sum += trail1(input, position + LINE_LEN, places_visted);
+    while stack_len > 0 {
+        stack_len -= 1;
+        if *stack_digits.get_unchecked(stack_len) == b'9' {
+            sum += 1;
+            continue;
+        }
+        let digit = *stack_digits.get_unchecked(stack_len) + 1;
+        macro_rules! push {
+            ($position: expr) => {
+                let position = $position;
+                if *input.get_unchecked(position) == digit && !*places_visited.get_unchecked(position) {
+                    *places_visited.get_unchecked_mut(position) = true;
+                    *stack_positions.get_unchecked_mut(stack_len) = position as u16;
+                    *stack_digits.get_unchecked_mut(stack_len) = digit;
+                    stack_len += 1;
+                }
+            };
+        }
+        let position = *stack_positions.get_unchecked(stack_len) as usize;
+        push!(position + 1);
+        if position != 0 {
+            push!(position - 1);
+        }
+        if position >= LINE_LEN {
+            push!(position - LINE_LEN);
+        }
+        if position < (INPUT_SIZE - LINE_LEN) {
+            push!(position + LINE_LEN);
+        }
     }
     sum
 }
@@ -214,5 +197,3 @@ fn test_part2_example() {
 fn test_part2_input() {
     assert_eq!(part2(include_str!("../input/day10_part1")), 1225);
 }
-
-const LINE_LEN: usize = 46;
