@@ -56,8 +56,7 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
 
     for i in 0..44 {
         let line = u8x64::from_array(input[i * 46..i * 46 + 64].try_into().unwrap_unchecked());
-        let mut matches = simd_eq(line, b'9');
-        matches[63] = 0;
+        let matches = simd_eq(line, b'9');
         arrays[8][i] = matches;
     }
     {
@@ -70,8 +69,7 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
         ($digit: literal) => {{
             let i = 0;
             let line = u8x64::from_array(input[0..64].try_into().unwrap_unchecked());
-            let mut matches = simd_eq(line, $digit + b'0');
-            matches[63] = 0;
+            let matches = simd_eq(line, $digit + b'0');
             let left_neighbors = arrays[$digit][i].rotate_elements_left::<1>();
             let right_neighbors = arrays[$digit][i].rotate_elements_right::<1>();
             let down_neighbors = arrays[$digit][i + 1];
@@ -79,8 +77,7 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
         }
         for i in 1..44 {
             let line = u8x64::from_array(input[i * 46..i * 46 + 64].try_into().unwrap_unchecked());
-            let mut matches = simd_eq(line, $digit + b'0');
-            matches[63] = 0;
+            let matches = simd_eq(line, $digit + b'0');
             let left_neighbors = arrays[$digit][i].rotate_elements_left::<1>();
             let right_neighbors = arrays[$digit][i].rotate_elements_right::<1>();
             let up_neighbors = arrays[$digit][i - 1];
@@ -112,8 +109,7 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
     {
         let i = 0;
         let line = u8x64::from_array(input[0..64].try_into().unwrap_unchecked());
-        let mut matches = simd_eq(line, b'0');
-        matches[63] = 0;
+        let matches = simd_eq(line, b'0');
         let left_neighbors = arrays[0][i].rotate_elements_left::<1>();
         let right_neighbors = arrays[0][i].rotate_elements_right::<1>();
         let down_neighbors = arrays[0][i + 1];
@@ -122,8 +118,7 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
     }
     for i in 1..44 {
         let line = u8x64::from_array(input[i * 46..i * 46 + 64].try_into().unwrap_unchecked());
-        let mut matches = simd_eq(line, b'0');
-        matches[63] = 0;
+        let matches = simd_eq(line, b'0');
         let left_neighbors = arrays[0][i].rotate_elements_left::<1>();
         let right_neighbors = arrays[0][i].rotate_elements_right::<1>();
         let up_neighbors = arrays[0][i - 1];
@@ -144,8 +139,11 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
     sum
 }
 
+#[inline(always)]
 fn simd_eq(lhs: u8x64, val: u8) -> u8x64 {
-    lhs.simd_eq(Simd::splat(val)).select(Simd::splat(1u8), Simd::splat(0))
+    let mut vec = lhs.simd_eq(Simd::splat(val)).select(Simd::splat(1u8), Simd::splat(0));
+    vec[63] = 0;
+    vec
 }
 
 #[test]
