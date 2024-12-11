@@ -113,6 +113,9 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
         *arrays[8].get_unchecked_mut(i) = matches;
     }
     macro_rules! impl_digit {
+        ($($digit: literal,)+) => {
+            $(impl_digit!($digit);)+
+        };
         ($digit: literal) => {{
             let i = 0;
             let line = u8x64::from_array(input.get_unchecked(0..64).try_into().unwrap_unchecked());
@@ -147,14 +150,7 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
         }};
     }
 
-    impl_digit!(8);
-    impl_digit!(7);
-    impl_digit!(6);
-    impl_digit!(5);
-    impl_digit!(4);
-    impl_digit!(3);
-    impl_digit!(2);
-    impl_digit!(1);
+    impl_digit!(8, 7, 6, 5, 4, 3, 2, 1,);
 
     let mut sum = 0;
     {
