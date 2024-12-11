@@ -13,7 +13,7 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
 
     while remaining.len() >= 32 {
         let offset = INPUT_SIZE - remaining.len();
-        let block = u8x32::from_array(remaining[..32].try_into().unwrap_unchecked());
+        let block = u8x32::from_array(remaining.get_unchecked(..32).try_into().unwrap_unchecked());
 
         let mut zeros = block.simd_eq(Simd::splat(b'0')).to_bitmask();
 
@@ -21,40 +21,75 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
             let i = zeros.trailing_zeros() as usize + offset;
             zeros &= zeros - 1;
 
-            sum += trail_count_from(input, i, 0, &mut places_visted);
+            sum += trail0(input, i, &mut places_visted);
             places_visted.fill(false);
         }
-        remaining = &remaining[32..];
+        remaining = remaining.get_unchecked(32..);
     }
     let offset = INPUT_SIZE - remaining.len();
     for (i, &b) in remaining.iter().enumerate() {
         let i = offset + i;
         let b'0' = b else { continue };
-        sum += trail_count_from(input, i, 0, &mut places_visted);
+        sum += trail0(input, i, &mut places_visted);
         places_visted.fill(false);
     }
     sum
 }
 
-fn trail_count_from(input: &[u8], position: usize, mut current: u8, places_visted: &mut [bool]) -> u32 {
-    if places_visted[position] || input[position].wrapping_sub(b'0') != current {
+macro_rules! impl_trail {
+    ($n: literal, $fn_name: ident, $call: ident) => {
+        #[inline]
+        unsafe fn $fn_name(input: &[u8], position: usize, places_visted: &mut [bool]) -> u32 {
+            if *places_visted.get_unchecked(position) || *input.get_unchecked(position) != ($n + b'0') {
+                return 0;
+            }
+            *places_visted.get_unchecked_mut(position) = true;
+            let mut sum = 0;
+            sum += $call(input, position + 1, places_visted);
+            if position != 0 {
+                sum += $call(input, position - 1, places_visted);
+            }
+            if position >= LINE_LEN {
+                sum += $call(input, position - LINE_LEN, places_visted);
+            }
+            if position < (input.len() - LINE_LEN) {
+                sum += $call(input, position + LINE_LEN, places_visted);
+            }
+            sum
+        }
+    };
+}
+
+#[inline]
+unsafe fn trail9(input: &[u8], position: usize, places_visted: &mut [bool]) -> u32 {
+    if *places_visted.get_unchecked(position) || *input.get_unchecked(position) != b'9' {
         return 0;
     }
-    places_visted[position] = true;
-    if current == 9 {
-        return 1;
-    }
-    current += 1;
+    *places_visted.get_unchecked_mut(position) = true;
+    1
+}
+
+impl_trail!(8, trail8, trail9);
+impl_trail!(7, trail7, trail8);
+impl_trail!(6, trail6, trail7);
+impl_trail!(5, trail5, trail6);
+impl_trail!(4, trail4, trail5);
+impl_trail!(3, trail3, trail4);
+impl_trail!(2, trail2, trail3);
+impl_trail!(1, trail1, trail2);
+
+#[inline]
+unsafe fn trail0(input: &[u8], position: usize, places_visted: &mut [bool]) -> u32 {
     let mut sum = 0;
-    sum += trail_count_from(input, position + 1, current, places_visted);
+    sum += trail1(input, position + 1, places_visted);
     if position != 0 {
-        sum += trail_count_from(input, position - 1, current, places_visted);
+        sum += trail1(input, position - 1, places_visted);
     }
     if position >= LINE_LEN {
-        sum += trail_count_from(input, position - LINE_LEN, current, places_visted);
+        sum += trail1(input, position - LINE_LEN, places_visted);
     }
     if position < (input.len() - LINE_LEN) {
-        sum += trail_count_from(input, position + LINE_LEN, current, places_visted);
+        sum += trail1(input, position + LINE_LEN, places_visted);
     }
     sum
 }
