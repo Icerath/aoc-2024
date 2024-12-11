@@ -10,29 +10,26 @@ pub fn part1(input: &str) -> u32 {
 
 unsafe fn part1_inner(input: &[u8]) -> u32 {
     let mut remaining = input;
-    let mut sum = 0;
-
     let mut places_visited = [false; INPUT_SIZE];
+    let mut sum = 0;
+    macro_rules! loop_body {
+        ($block: expr) => {
+            let offset = (INPUT_SIZE - remaining.len()) as u16;
+            let mut zeros = $block.simd_eq(Simd::splat(b'0')).to_bitmask();
+            while zeros != 0 {
+                let i = zeros.trailing_zeros() as u16 + offset;
+                zeros &= zeros - 1;
+                sum += trail(input, i, &mut places_visited);
+                places_visited.fill(false);
+            }
+        };
+    }
     while remaining.len() >= 32 {
-        let offset = (INPUT_SIZE - remaining.len()) as u16;
         let block = u8x32::from_array(remaining.get_unchecked(..32).try_into().unwrap_unchecked());
-
-        let mut zeros = block.simd_eq(Simd::splat(b'0')).to_bitmask();
-        while zeros != 0 {
-            let i = zeros.trailing_zeros() as u16 + offset;
-            zeros &= zeros - 1;
-            sum += trail(input, i, &mut places_visited);
-            places_visited.fill(false);
-        }
+        loop_body!(block);
         remaining = remaining.get_unchecked(32..);
     }
-    let offset = INPUT_SIZE - remaining.len();
-    for (i, &b) in remaining.iter().enumerate() {
-        let i = offset + i;
-        let b'0' = b else { continue };
-        sum += trail(input, i as _, &mut places_visited);
-        places_visited.fill(false);
-    }
+    loop_body!(u8x32::load_or_default(remaining));
     sum
 }
 
