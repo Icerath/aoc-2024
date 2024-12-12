@@ -9,6 +9,7 @@ criterion = "0.5.1"
 
 [dependencies]
 bstr = "1.11.0"
+rustc-hash = "2.1.0"
 tinyvec = "1.8.0"
 
 [profile.release]
@@ -59,4 +60,8 @@ harness = false
 
 [[bench]]
 name = "day10"
+harness = false
+
+[[bench]]
+name = "day11"
 harness = false
