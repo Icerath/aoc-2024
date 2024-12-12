@@ -25,7 +25,7 @@ jobs:
         env:
           ADVENT_OF_CODE_SESSION: ${{ secrets.AOC_SESSION }}
         run: |
-          mkdir -p inputs
+          mkdir -p input
           for i in {1..25}; do
             aoc download -I -i input/day$i.txt --year 2024 -d $i || true
           done
