@@ -1,52 +1,32 @@
-use std::hint::unreachable_unchecked;
+#![expect(clippy::cast_possible_truncation)]
 
-use rustc_hash::{FxBuildHasher, FxHashMap as HashMap};
+static LUT25: [u32; 10_000_000] = unsafe { std::mem::transmute(*include_bytes!("../luts/11a")) };
+static LUT75: [u64; 10_000_000] = unsafe { std::mem::transmute(*include_bytes!("../luts/11b")) };
 
-pub fn part1(input: &str) -> u64 {
-    unsafe { both_parts::<25>(input.as_bytes()) }
+macro_rules! impl_part {
+    ($input: ident, $lut: ident) => {{
+        let mut input = $input.as_ptr();
+        let mut sum = 0;
+        let mut num = 0;
+        loop {
+            match input.read() {
+                b'0'..=b'9' => num = (num * 10) + (input.read() - b'0') as u64,
+                b' ' => sum += $lut.get_unchecked(std::mem::take(&mut num) as usize),
+                b'\n' => break,
+                _ => std::hint::unreachable_unchecked(),
+            }
+            input = input.add(1);
+        }
+        sum + $lut.get_unchecked(num as usize)
+    }};
+}
+
+pub fn part1(input: &str) -> u32 {
+    unsafe { impl_part!(input, LUT25) }
 }
 
 pub fn part2(input: &str) -> u64 {
-    unsafe { both_parts::<75>(input.as_bytes()) }
-}
-
-#[inline(always)]
-unsafe fn both_parts<const BLINKS: u8>(input: &[u8]) -> u64 {
-    let mut stones = HashMap::with_capacity_and_hasher(7168, FxBuildHasher);
-    let mut new_stones = HashMap::with_capacity_and_hasher(7168, FxBuildHasher);
-    let mut num = 0;
-
-    let mut input = input.as_ptr();
-    loop {
-        match input.read() {
-            b'0'..=b'9' => num = (num * 10) + (input.read() - b'0') as u64,
-            b' ' => *stones.entry(std::mem::take(&mut num)).or_default() += 1,
-            b'\n' => break,
-            _ => unreachable_unchecked(),
-        }
-        input = input.add(1);
-    }
-    *stones.entry(num).or_default() += 1;
-
-    for _ in 0..BLINKS {
-        for (&stone, &count) in &stones {
-            if stone == 0 {
-                *new_stones.entry(1).or_default() += count;
-            } else {
-                let digits = stone.ilog10() + 1;
-                if digits % 2 == 0 {
-                    let power = 10u64.pow(digits / 2);
-                    *new_stones.entry(stone / power).or_default() += count;
-                    *new_stones.entry(stone % power).or_default() += count;
-                } else {
-                    *new_stones.entry(stone * 2024).or_default() += count;
-                }
-            }
-        }
-        std::mem::swap(&mut stones, &mut new_stones);
-        new_stones.clear();
-    }
-    stones.values().sum()
+    unsafe { impl_part!(input, LUT75) }
 }
 
 #[test]
