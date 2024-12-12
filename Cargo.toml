@@ -22,45 +22,5 @@ inline_always = "allow"
 range_plus_one = "allow"
 
 [[bench]]
-name = "day1"
-harness = false
-
-[[bench]]
-name = "day2"
-harness = false
-
-[[bench]]
-name = "day3"
-harness = false
-
-[[bench]]
-name = "day4"
-harness = false
-
-[[bench]]
-name = "day5"
-harness = false
-
-[[bench]]
-name = "day6"
-harness = false
-
-[[bench]]
-name = "day7"
-harness = false
-
-[[bench]]
-name = "day8"
-harness = false
-
-[[bench]]
-name = "day9"
-harness = false
-
-[[bench]]
-name = "day10"
-harness = false
-
-[[bench]]
-name = "day11"
+name = "bench_today"
 harness = false
