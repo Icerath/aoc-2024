@@ -52,16 +52,16 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
     count
 }
 
-#[test]
-#[ignore]
-fn test_part1_example() {
-    let input = include_str!("../input/day4_part1_example");
-    assert_eq!(part1(input), 18);
-}
+// #[test]
+// #[ignore]
+// fn test_part1_example() {
+//     let input = include_str!("../input/day4_part1_example");
+//     assert_eq!(part1(input), 18);
+// }
 
 #[test]
 fn test_part1_input() {
-    let input = include_str!("../input/day4_part1");
+    let input = include_str!("../input/day4.txt");
     assert_eq!(part1(input), 2571);
 }
 
@@ -105,16 +105,16 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
     count
 }
 
-#[test]
-#[ignore]
-fn test_part2_example() {
-    let input = include_str!("../input/day4_part1_example");
-    assert_eq!(part2(input), 9);
-}
+// #[test]
+// #[ignore]
+// fn test_part2_example() {
+//     let input = include_str!("../input/day4_part1_example");
+//     assert_eq!(part2(input), 9);
+// }
 
 #[test]
 fn test_part2_input() {
-    let input = include_str!("../input/day4_part1");
+    let input = include_str!("../input/day4.txt");
     assert_eq!(part2(input), 1992);
 }
 

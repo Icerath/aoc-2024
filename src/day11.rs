@@ -31,10 +31,10 @@ pub fn part2(input: &str) -> u64 {
 
 #[test]
 fn test_part1_input() {
-    assert_eq!(part1(include_str!("../input/day11_part1")), 194_557);
+    assert_eq!(part1(include_str!("../input/day11.txt")), 194_557);
 }
 
 #[test]
 fn test_part2_input() {
-    assert_eq!(part2(include_str!("../input/day11_part1")), 231_532_558_973_909);
+    assert_eq!(part2(include_str!("../input/day11.txt")), 231_532_558_973_909);
 }

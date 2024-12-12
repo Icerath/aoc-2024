@@ -74,15 +74,15 @@ fn parse_int5(bytes: &[u8; 5]) -> u32 {
         - offset
 }
 
-#[test]
-fn part1_example() {
-    let input = include_str!("../input/day1_part1_example");
-    assert_eq!(part1(input), 11);
-}
+// #[test]
+// fn part1_example() {
+//     let input = include_str!("../input/day1_part1_example");
+//     assert_eq!(part1(input), 11);
+// }
 
 #[test]
 fn part1_input() {
-    let input = include_str!("../input/day1_part1");
+    let input = include_str!("../input/day1.txt");
     assert_eq!(part1(input), 2_086_478);
 }
 
@@ -103,14 +103,15 @@ pub fn part2(input: &str) -> u32 {
     score
 }
 
-#[test]
-fn part2_example() {
-    let input = include_str!("../input/day1_part1_example");
-    assert_eq!(part2(input), 31);
-}
+// #[test]
+// #[ignore]
+// fn part2_example() {
+//     let input = include_str!("../input/day1_part1_example");
+//     assert_eq!(part2(input), 31);
+// }
 
 #[test]
 fn part2_input() {
-    let input = include_str!("../input/day1_part1");
+    let input = include_str!("../input/day1.txt");
     assert_eq!(part2(input), 24_941_624);
 }

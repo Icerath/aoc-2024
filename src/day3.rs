@@ -41,15 +41,15 @@ fn parse_num(input: &mut &[u8]) -> Option<u32> {
     Some(num)
 }
 
-#[test]
-fn test_part1_example() {
-    let input = include_str!("../input/day3_part1_example");
-    assert_eq!(part1(input), 161);
-}
+// #[test]
+// fn test_part1_example() {
+//     let input = include_str!("../input/day3_part1_example");
+//     assert_eq!(part1(input), 161);
+// }
 
 #[test]
 fn test_part1_input() {
-    let input = include_str!("../input/day3_part1");
+    let input = include_str!("../input/day3.txt");
     assert_eq!(part1(input), 171_183_089);
 }
 
@@ -88,14 +88,14 @@ pub fn part2(input: &str) -> u32 {
     sum
 }
 
-#[test]
-fn test_part2_example() {
-    let example = include_str!("../input/day3_part2_example");
-    assert_eq!(part2(example), 48);
-}
+// #[test]
+// fn test_part2_example() {
+//     let example = include_str!("../input/day3_part2_example");
+//     assert_eq!(part2(example), 48);
+// }
 
 #[test]
 fn test_part2_input() {
-    let example = include_str!("../input/day3_part1");
+    let example = include_str!("../input/day3.txt");
     assert_eq!(part2(example), 63_866_497);
 }

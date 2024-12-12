@@ -72,15 +72,15 @@ unsafe fn trail(input: &[u8], initial_position: u16, places_visited: &mut [bool]
     sum
 }
 
-#[test]
-#[ignore]
-fn test_part1_example() {
-    assert_eq!(part1(include_str!("../input/day10_part1_example")), 36);
-}
+// #[test]
+// #[ignore]
+// fn test_part1_example() {
+//     assert_eq!(part1(include_str!("../input/day10_part1_example")), 36);
+// }
 
 #[test]
 fn test_part1_input() {
-    assert_eq!(part1(include_str!("../input/day10_part1")), 552);
+    assert_eq!(part1(include_str!("../input/day10.txt")), 552);
 }
 
 pub fn part2(input: &str) -> u32 {
@@ -180,15 +180,15 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
     sum
 }
 
-#[test]
-#[ignore]
-fn test_part2_example() {
-    assert_eq!(part2(include_str!("../input/day10_part1_example")), 81);
-}
+// #[test]
+// #[ignore]
+// fn test_part2_example() {
+//     assert_eq!(part2(include_str!("../input/day10_part1_example")), 81);
+// }
 
 #[test]
 fn test_part2_input() {
-    assert_eq!(part2(include_str!("../input/day10_part1")), 1225);
+    assert_eq!(part2(include_str!("../input/day10.txt")), 1225);
 }
 
 #[inline(always)]

@@ -3,12 +3,12 @@ use criterion::{criterion_group, criterion_main, Criterion};
 use std::hint::black_box;
 
 fn bench_part1(c: &mut Criterion) {
-    let input = include_str!("../input/day11_part1");
+    let input = include_str!("../input/day11.txt");
     c.bench_function("day11_part1", |b| b.iter(|| part1(black_box(input))));
 }
 
 fn bench_part2(c: &mut Criterion) {
-    let input = include_str!("../input/day11_part1");
+    let input = include_str!("../input/day11.txt");
     c.bench_function("day11_part2", |b| b.iter(|| part2(black_box(input))));
 }
 

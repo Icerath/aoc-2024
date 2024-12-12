@@ -78,30 +78,30 @@ pub fn part1(input: &str) -> u32 {
     unsafe { both_parts::<true>(input.as_bytes()) }
 }
 
-#[test]
-#[ignore]
-fn test_part1_example() {
-    assert_eq!(part1(include_str!("../input/day8_part1_example")), 14);
-}
+// #[test]
+// #[ignore]
+// fn test_part1_example() {
+//     assert_eq!(part1(include_str!("../input/day8_part1_example")), 14);
+// }
 
 #[test]
 fn test_part1_input() {
-    assert_eq!(part1(include_str!("../input/day8_part1")), 329);
+    assert_eq!(part1(include_str!("../input/day8.txt")), 329);
 }
 
 pub fn part2(input: &str) -> u32 {
     unsafe { both_parts::<false>(input.as_bytes()) }
 }
 
-#[test]
-#[ignore]
-fn test_part2_example() {
-    assert_eq!(part2(include_str!("../input/day8_part1_example")), 34);
-}
+// #[test]
+// #[ignore]
+// fn test_part2_example() {
+//     assert_eq!(part2(include_str!("../input/day8_part1_example")), 34);
+// }
 
 #[test]
 fn test_part2_input() {
-    assert_eq!(part2(include_str!("../input/day8_part1")), 1190);
+    assert_eq!(part2(include_str!("../input/day8.txt")), 1190);
 }
 
 #[inline(always)]

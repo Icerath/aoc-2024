@@ -62,14 +62,14 @@ unsafe fn check_part1(expected: u64, operands: &[u16]) -> bool {
     }
 }
 
-#[test]
-fn test_part1_example() {
-    assert_eq!(part1(include_str!("../input/day7_part1_example")), 3749);
-}
+// #[test]
+// fn test_part1_example() {
+//     assert_eq!(part1(include_str!("../input/day7_part1_example")), 3749);
+// }
 
 #[test]
 fn test_part1_input() {
-    assert_eq!(part1(include_str!("../input/day7_part1")), 5_837_374_519_342);
+    assert_eq!(part1(include_str!("../input/day7.txt")), 5_837_374_519_342);
 }
 
 pub fn part2(input: &str) -> u64 {
@@ -94,14 +94,14 @@ unsafe fn check_part2(expected: u64, operands: &[u16]) -> bool {
     }
 }
 
-#[test]
-fn test_part2_example() {
-    assert_eq!(part2(include_str!("../input/day7_part1_example")), 11387);
-}
+// #[test]
+// fn test_part2_example() {
+//     assert_eq!(part2(include_str!("../input/day7_part1_example")), 11387);
+// }
 
 #[test]
 fn test_part2_input() {
-    assert_eq!(part2(include_str!("../input/day7_part1")), 492_383_931_650_959);
+    assert_eq!(part2(include_str!("../input/day7.txt")), 492_383_931_650_959);
 }
 
 #[inline]

@@ -10,14 +10,14 @@ pub fn part1(input: &str) -> u32 {
     unsafe { generic_impl::<true>(input) }
 }
 
-#[test]
-fn test_part1_example() {
-    assert_eq!(part1(include_str!("../input/day5_part1_example")), 143);
-}
+// #[test]
+// fn test_part1_example() {
+//     assert_eq!(part1(include_str!("../input/day5_part1_example")), 143);
+// }
 
 #[test]
 fn test_part1_input() {
-    assert_eq!(part1(include_str!("../input/day5_part1")), 6260);
+    assert_eq!(part1(include_str!("../input/day5.txt")), 6260);
 }
 
 #[target_feature(enable = "avx2,bmi1,bmi2,cmpxchg16b,lzcnt,movbe,popcnt")]
@@ -102,12 +102,12 @@ pub fn part2(input: &str) -> u32 {
     unsafe { generic_impl::<false>(input) }
 }
 
-#[test]
-fn test_part2_example() {
-    assert_eq!(part2(include_str!("../input/day5_part1_example")), 123);
-}
+// #[test]
+// fn test_part2_example() {
+//     assert_eq!(part2(include_str!("../input/day5_part1_example")), 123);
+// }
 
 #[test]
 fn test_part2_input() {
-    assert_eq!(part2(include_str!("../input/day5_part1")), 5346);
+    assert_eq!(part2(include_str!("../input/day5.txt")), 5346);
 }

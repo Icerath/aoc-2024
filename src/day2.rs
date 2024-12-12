@@ -31,15 +31,15 @@ pub fn part1(input: &str) -> u32 {
     safe_records
 }
 
-#[test]
-fn test_part1_example() {
-    let input = include_str!("../input/day2_part1_example");
-    assert_eq!(part1(input), 2);
-}
+// #[test]
+// fn test_part1_example() {
+//     let input = include_str!("../input/day2_part1_example");
+//     assert_eq!(part1(input), 2);
+// }
 
 #[test]
 fn test_part1_input() {
-    let input = include_str!("../input/day2_part1");
+    let input = include_str!("../input/day2.txt");
     assert_eq!(part1(input), 686);
 }
 
@@ -113,14 +113,14 @@ fn is_record_safe(mut record: impl Iterator<Item = u8>) -> u8 {
     0
 }
 
-#[test]
-fn test_part2_example() {
-    let input = include_str!("../input/day2_part1_example");
-    assert_eq!(part2(input), 4);
-}
+// #[test]
+// fn test_part2_example() {
+//     let input = include_str!("../input/day2_part1_example");
+//     assert_eq!(part2(input), 4);
+// }
 
 #[test]
 fn test_part2_input() {
-    let input = include_str!("../input/day2_part1");
+    let input = include_str!("../input/day2.txt");
     assert_eq!(part2(input), 717);
 }

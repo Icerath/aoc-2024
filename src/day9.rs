@@ -41,15 +41,15 @@ unsafe fn part1_inner(input: &[u8]) -> usize {
     result / 2
 }
 
-#[test]
-#[ignore]
-fn test_part1_example() {
-    assert_eq!(part1(include_str!("../input/day9_part1_example")), 1928);
-}
+// #[test]
+// #[ignore]
+// fn test_part1_example() {
+//     assert_eq!(part1(include_str!("../input/day9_part1_example")), 1928);
+// }
 
 #[test]
 fn test_part1_input() {
-    assert_eq!(part1(include_str!("../input/day9_part1")), 6_386_640_365_805);
+    assert_eq!(part1(include_str!("../input/day9.txt")), 6_386_640_365_805);
 }
 
 pub fn part2(input: &str) -> usize {
@@ -116,13 +116,13 @@ unsafe fn part2_inner(input: &[u8]) -> usize {
     result / 2
 }
 
-#[test]
-#[ignore]
-fn test_part2_example() {
-    assert_eq!(part2(include_str!("../input/day9_part1_example")), 2858);
-}
+// #[test]
+// #[ignore]
+// fn test_part2_example() {
+//     assert_eq!(part2(include_str!("../input/day9_part1_example")), 2858);
+// }
 
 #[test]
 fn test_part2_input() {
-    assert_eq!(part2(include_str!("../input/day9_part1")), 6_423_258_376_982);
+    assert_eq!(part2(include_str!("../input/day9.txt")), 6_423_258_376_982);
 }
