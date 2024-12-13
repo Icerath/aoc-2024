@@ -2,19 +2,19 @@ const INPUT_SIZE: usize = LINE_WIDTH * GRID_WIDTH;
 const LINE_WIDTH: usize = GRID_WIDTH + 1;
 const GRID_WIDTH: usize = 140;
 
+static mut CHECKED_P1: [bool; INPUT_SIZE] = [false; INPUT_SIZE];
+
 unsafe fn part1_inner(input: &[u8]) -> u32 {
     std::hint::assert_unchecked(input.len() == INPUT_SIZE);
-
-    let mut checked = [false; INPUT_SIZE];
     let mut queue = [0usize; 128];
     let mut queue_len = 0;
 
     let mut sum = 0;
     for i in 0..INPUT_SIZE - 1 {
-        if *checked.get_unchecked(i) || i % LINE_WIDTH == 140 {
+        if *CHECKED_P1.get_unchecked(i) || i % LINE_WIDTH == 140 {
             continue;
         }
-        *checked.get_unchecked_mut(i) = true;
+        *CHECKED_P1.get_unchecked_mut(i) = true;
 
         let mut area = 0;
         let mut perimeter = 0;
@@ -32,10 +32,10 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
                     let pos = $pos;
                     if !($same && input.get_unchecked(pos) == input.get_unchecked(i)) {
                         perimeter += 1;
-                    } else if !*checked.get_unchecked(pos) {
+                    } else if !*CHECKED_P1.get_unchecked(pos) {
                         *queue.get_unchecked_mut(queue_len) = pos;
                         queue_len += 1;
-                        *checked.get_unchecked_mut(pos) = true;
+                        *CHECKED_P1.get_unchecked_mut(pos) = true;
                     }
                 }};
             }
