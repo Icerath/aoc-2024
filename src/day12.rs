@@ -5,7 +5,7 @@ const GRID_WIDTH: usize = 140;
 unsafe fn part1_inner(input: &[u8]) -> u32 {
     std::hint::assert_unchecked(input.len() == INPUT_SIZE);
 
-    let mut checked = vec![false; INPUT_SIZE];
+    let mut checked = [false; INPUT_SIZE];
     let mut queue = [0usize; 128];
     let mut queue_len = 0;
 
