@@ -20,6 +20,7 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
 
         queue.push(i);
         while let Some(pos) = queue.pop() {
+            std::hint::assert_unchecked(pos < INPUT_SIZE);
             area += 1;
 
             macro_rules! loop_body {
@@ -47,6 +48,8 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
 }
 
 unsafe fn part2_inner(input: &[u8]) -> u32 {
+    std::hint::assert_unchecked(input.len() == INPUT_SIZE);
+
     let mut checked = vec![false; INPUT_SIZE];
     let mut queue = Vec::with_capacity(128);
 
@@ -62,6 +65,7 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
 
         queue.push(i);
         while let Some(pos) = queue.pop() {
+            std::hint::assert_unchecked(pos < INPUT_SIZE);
             let [x, y] = [pos % LINE_WIDTH, pos / LINE_WIDTH];
             area += 1;
 
