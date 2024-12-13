@@ -3,6 +3,8 @@ const LINE_WIDTH: usize = GRID_WIDTH + 1;
 const GRID_WIDTH: usize = 140;
 
 unsafe fn part1_inner(input: &[u8]) -> u32 {
+    std::hint::assert_unchecked(input.len() == INPUT_SIZE);
+
     let mut checked = vec![false; INPUT_SIZE];
     let mut queue = Vec::with_capacity(128);
 
