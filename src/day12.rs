@@ -1,3 +1,5 @@
+use tinyvec::ArrayVec;
+
 const INPUT_SIZE: usize = LINE_WIDTH * GRID_WIDTH;
 const LINE_WIDTH: usize = GRID_WIDTH + 1;
 const GRID_WIDTH: usize = 140;
@@ -6,7 +8,7 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
     std::hint::assert_unchecked(input.len() == INPUT_SIZE);
 
     let mut checked = vec![false; INPUT_SIZE];
-    let mut queue = Vec::with_capacity(128);
+    let mut queue = ArrayVec::<[usize; 128]>::new();
 
     let mut sum = 0;
     for i in 0..INPUT_SIZE - 1 {
