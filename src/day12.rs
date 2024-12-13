@@ -53,7 +53,7 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
     std::hint::assert_unchecked(input.len() == INPUT_SIZE);
 
     let mut checked = vec![false; INPUT_SIZE];
-    let mut queue = Vec::with_capacity(128);
+    let mut queue = ArrayVec::<[usize; 128]>::new();
 
     let mut sum = 0;
     for i in 0..INPUT_SIZE - 1 {
