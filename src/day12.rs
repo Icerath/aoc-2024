@@ -106,7 +106,7 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
                     if ($same && input.get_unchecked(pos) == input.get_unchecked(i))
                         && !*checked.get_unchecked(pos)
                     {
-                        queue[queue_len] = pos;
+                        *queue.get_unchecked_mut(queue_len) = pos;
                         queue_len += 1;
                         *checked.get_unchecked_mut(pos) = true;
                     }
