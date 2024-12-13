@@ -53,7 +53,8 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
     std::hint::assert_unchecked(input.len() == INPUT_SIZE);
 
     let mut checked = vec![false; INPUT_SIZE];
-    let mut queue = ArrayVec::<[usize; 128]>::new();
+    let mut queue = [0usize; 128];
+    let mut queue_len = 0;
 
     let mut sum = 0;
     for i in 0..INPUT_SIZE - 1 {
@@ -65,8 +66,11 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
         let mut area = 0;
         let mut corners = 0;
 
-        queue.push(i);
-        while let Some(pos) = queue.pop() {
+        *queue.get_unchecked_mut(queue_len) = i;
+        queue_len += 1;
+        while queue_len > 0 {
+            queue_len -= 1;
+            let pos = *queue.get_unchecked(queue_len);
             std::hint::assert_unchecked(pos < INPUT_SIZE);
             let [x, y] = [pos % LINE_WIDTH, pos / LINE_WIDTH];
             area += 1;
@@ -99,7 +103,8 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
                     if ($same && input.get_unchecked(pos) == input.get_unchecked(i))
                         && !*checked.get_unchecked(pos)
                     {
-                        queue.push(pos);
+                        queue[queue_len] = pos;
+                        queue_len += 1;
                         *checked.get_unchecked_mut(pos) = true;
                     }
                 }};
