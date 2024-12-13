@@ -3,7 +3,7 @@ const LINE_WIDTH: usize = GRID_WIDTH + 1;
 const GRID_WIDTH: usize = 140;
 
 unsafe fn part1_inner(input: &[u8]) -> u32 {
-    let mut checked = vec![false; input.len()];
+    let mut checked = vec![false; INPUT_SIZE];
     let mut queue = Vec::with_capacity(128);
 
     let mut sum = 0;
@@ -45,7 +45,7 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
 }
 
 unsafe fn part2_inner(input: &[u8]) -> u32 {
-    let mut checked = vec![false; input.len()];
+    let mut checked = vec![false; INPUT_SIZE];
     let mut queue = Vec::with_capacity(128);
 
     let mut sum = 0;
@@ -75,7 +75,7 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
                     let is_corner = (!adj_eq[$i] && !adj_eq[$j])
                         || adj_eq[$i] && adj_eq[$j] && {
                             let pos = $diag;
-                            !(pos < input.len() && input[pos] == input[i])
+                            !(pos < INPUT_SIZE && input[pos] == input[i])
                         };
                     corners += is_corner as u32;
                 };
