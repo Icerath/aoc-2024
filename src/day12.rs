@@ -10,10 +10,10 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
 
     let mut sum = 0;
     for i in 0..INPUT_SIZE - 1 {
-        if checked[i] || i % LINE_WIDTH == 140 {
+        if *checked.get_unchecked(i) || i % LINE_WIDTH == 140 {
             continue;
         }
-        checked[i] = true;
+        *checked.get_unchecked_mut(i) = true;
 
         let mut area = 0;
         let mut perimeter = 0;
@@ -26,11 +26,11 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
             macro_rules! loop_body {
                 ($pos: expr, $same: expr) => {{
                     let pos = $pos;
-                    if !($same && input[pos] == input[i]) {
+                    if !($same && input.get_unchecked(pos) == input.get_unchecked(i)) {
                         perimeter += 1;
-                    } else if !checked[pos] {
+                    } else if !*checked.get_unchecked(pos) {
                         queue.push(pos);
-                        checked[pos] = true;
+                        *checked.get_unchecked_mut(pos) = true;
                     }
                 }};
             }
@@ -55,10 +55,10 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
 
     let mut sum = 0;
     for i in 0..INPUT_SIZE - 1 {
-        if checked[i] || i % LINE_WIDTH == 140 {
+        if *checked.get_unchecked(i) || i % LINE_WIDTH == 140 {
             continue;
         }
-        checked[i] = true;
+        *checked.get_unchecked_mut(i) = true;
 
         let mut area = 0;
         let mut corners = 0;
@@ -70,10 +70,10 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
             area += 1;
 
             let adj_eq = [
-                x != 0 && input[pos - 1] == input[i],
-                y != 0 && input[pos - LINE_WIDTH] == input[i],
-                x + 1 < GRID_WIDTH && input[pos + 1] == input[i],
-                y + 1 < GRID_WIDTH && input[pos + LINE_WIDTH] == input[i],
+                x != 0 && input.get_unchecked(pos - 1) == input.get_unchecked(i),
+                y != 0 && input.get_unchecked(pos - LINE_WIDTH) == input.get_unchecked(i),
+                x + 1 < GRID_WIDTH && *input.get_unchecked(pos + 1) == *input.get_unchecked(i),
+                y + 1 < GRID_WIDTH && input.get_unchecked(pos + LINE_WIDTH) == input.get_unchecked(i),
             ];
 
             macro_rules! count_corners {
@@ -81,7 +81,7 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
                     let is_corner = (!adj_eq[$i] && !adj_eq[$j])
                         || adj_eq[$i] && adj_eq[$j] && {
                             let pos = $diag;
-                            !(pos < INPUT_SIZE && input[pos] == input[i])
+                            !(pos < INPUT_SIZE && input.get_unchecked(pos) == input.get_unchecked(i))
                         };
                     corners += is_corner as u32;
                 };
@@ -94,9 +94,11 @@ unsafe fn part2_inner(input: &[u8]) -> u32 {
             macro_rules! push_if_different {
                 ($pos: expr, $same: expr) => {{
                     let pos = $pos;
-                    if ($same && input[pos] == input[i]) && !checked[pos] {
+                    if ($same && input.get_unchecked(pos) == input.get_unchecked(i))
+                        && !*checked.get_unchecked(pos)
+                    {
                         queue.push(pos);
-                        checked[pos] = true;
+                        *checked.get_unchecked_mut(pos) = true;
                     }
                 }};
             }
