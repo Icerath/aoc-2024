@@ -1,5 +1,3 @@
-use tinyvec::ArrayVec;
-
 const INPUT_SIZE: usize = LINE_WIDTH * GRID_WIDTH;
 const LINE_WIDTH: usize = GRID_WIDTH + 1;
 const GRID_WIDTH: usize = 140;
@@ -8,7 +6,8 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
     std::hint::assert_unchecked(input.len() == INPUT_SIZE);
 
     let mut checked = vec![false; INPUT_SIZE];
-    let mut queue = ArrayVec::<[usize; 128]>::new();
+    let mut queue = [0usize; 128];
+    let mut queue_len = 0;
 
     let mut sum = 0;
     for i in 0..INPUT_SIZE - 1 {
@@ -20,8 +19,11 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
         let mut area = 0;
         let mut perimeter = 0;
 
-        queue.push(i);
-        while let Some(pos) = queue.pop() {
+        *queue.get_unchecked_mut(queue_len) = i;
+        queue_len += 1;
+        while queue_len > 0 {
+            queue_len -= 1;
+            let pos = *queue.get_unchecked(queue_len);
             std::hint::assert_unchecked(pos < INPUT_SIZE);
             area += 1;
 
@@ -31,7 +33,8 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
                     if !($same && input.get_unchecked(pos) == input.get_unchecked(i)) {
                         perimeter += 1;
                     } else if !*checked.get_unchecked(pos) {
-                        queue.push(pos);
+                        *queue.get_unchecked_mut(queue_len) = pos;
+                        queue_len += 1;
                         *checked.get_unchecked_mut(pos) = true;
                     }
                 }};
