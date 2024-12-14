@@ -51,8 +51,8 @@ unsafe fn parse2(bytes: &[u8]) -> i64 {
 
 #[inline(always)]
 unsafe fn parse_pair(ptr: &mut &[u8]) -> [i64; 2] {
-    let mut lhs = 0;
-    let mut rhs = 0;
+    let mut lhs = parse2(ptr);
+    *ptr = ptr.get_unchecked(2..);
 
     loop {
         match ptr.get_unchecked(0) {
@@ -63,6 +63,9 @@ unsafe fn parse_pair(ptr: &mut &[u8]) -> [i64; 2] {
         *ptr = ptr.get_unchecked(1..);
     }
     *ptr = ptr.get_unchecked(4..);
+    let mut rhs = parse2(ptr);
+
+    *ptr = ptr.get_unchecked(2..);
     loop {
         match ptr.get_unchecked(0) {
             b'\n' => break,
