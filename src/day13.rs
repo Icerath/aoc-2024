@@ -14,9 +14,8 @@ unsafe fn both_parts<const OFFSET: i64>(input: &[u8]) -> i64 {
         let [z1, z2] = parse_pair(&mut remaining);
         let [z1, z2] = [z1 + OFFSET, z2 + OFFSET];
 
-        // Help.
-        let b = (z2 * x1 - z1 * y1) / (y2 * x1 - x2 * y1);
-        let a = (z1 - b * x2) / x1;
+        let b = (z2 * x1 - z1 * y1).checked_div(y2 * x1 - x2 * y1).unwrap_unchecked();
+        let a = (z1 - b * x2).checked_div(x1).unwrap_unchecked();
         result += if (x1 * a + x2 * b, y1 * a + y2 * b) == (z1, z2) { a * 3 + b } else { 0 };
         if remaining.len() < 2 {
             break;
