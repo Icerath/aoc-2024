@@ -1,7 +1,4 @@
-use std::{
-    hint::unreachable_unchecked,
-    simd::{cmp::SimdPartialEq, u8x8, Simd},
-};
+use std::hint::unreachable_unchecked;
 
 unsafe fn both_parts<const OFFSET: i64>(input: &[u8]) -> i64 {
     let mut remaining = input;
@@ -13,7 +10,8 @@ unsafe fn both_parts<const OFFSET: i64>(input: &[u8]) -> i64 {
         let x2 = parse2(remaining.get_unchecked(12 + 21..14 + 21));
         let y2 = parse2(remaining.get_unchecked(18 + 21..20 + 21));
 
-        let [z1, z2] = parse_pair(remaining.as_ptr().add(9 + 42));
+        remaining = remaining.get_unchecked(9 + 42..);
+        let [z1, z2] = parse_pair(&mut remaining);
         let [z1, z2] = [z1 + OFFSET, z2 + OFFSET];
 
         // Help.
@@ -24,9 +22,7 @@ unsafe fn both_parts<const OFFSET: i64>(input: &[u8]) -> i64 {
         if remaining.len() < 64 {
             break;
         }
-        let next = u8x8::from_array(remaining.get_unchecked(19 + 42..27 + 42).try_into().unwrap_unchecked());
-        let nl_offset = next.simd_eq(Simd::splat(b'\n')).first_set().unwrap_unchecked() + 19 + 42 + 2;
-        remaining = remaining.get_unchecked(nl_offset..);
+        remaining = remaining.get_unchecked(2..);
     }
     result
 }
@@ -55,26 +51,26 @@ unsafe fn parse2(bytes: &[u8]) -> i64 {
 }
 
 #[inline(always)]
-unsafe fn parse_pair(mut ptr: *const u8) -> [i64; 2] {
+unsafe fn parse_pair(ptr: &mut &[u8]) -> [i64; 2] {
     let mut lhs = 0;
     let mut rhs = 0;
 
     loop {
-        match ptr.read() {
+        match ptr.get_unchecked(0) {
             b',' => break,
             i @ b'0'..=b'9' => lhs = lhs * 10 + (i - b'0') as i64,
             _ => unreachable_unchecked(),
         }
-        ptr = ptr.add(1);
+        *ptr = ptr.get_unchecked(1..);
     }
-    ptr = ptr.add(4);
+    *ptr = ptr.get_unchecked(4..);
     loop {
-        match ptr.read() {
+        match ptr.get_unchecked(0) {
             b'\n' => break,
             i @ b'0'..=b'9' => rhs = rhs * 10 + (i - b'0') as i64,
             _ => unreachable_unchecked(),
         }
-        ptr = ptr.add(1);
+        *ptr = ptr.get_unchecked(1..);
     }
     [lhs, rhs]
 }
