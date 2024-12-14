@@ -21,11 +21,11 @@ unsafe fn both_parts<const OFFSET: i64>(input: &[u8]) -> i64 {
         let a = (z1 - b * x2) / x1;
         result += if (x1 * a + x2 * b, y1 * a + y2 * b) == (z1, z2) { a * 3 + b } else { 0 };
 
-        if remaining.len() < 80 {
+        if remaining.len() < 64 {
             break;
         }
         let next = u8x8::from_array(remaining.get_unchecked(19 + 42..27 + 42).try_into().unwrap_unchecked());
-        let nl_offset = next.simd_eq(Simd::splat(b'\n')).first_set().unwrap() + 19 + 42 + 2;
+        let nl_offset = next.simd_eq(Simd::splat(b'\n')).first_set().unwrap_unchecked() + 19 + 42 + 2;
         remaining = remaining.get_unchecked(nl_offset..);
     }
     result
