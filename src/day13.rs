@@ -42,8 +42,8 @@ macro_rules! impl_part {
 
             let b = (z2 * x1 - z1 * y1).checked_div(y2 * x1 - x2 * y1).unwrap_unchecked();
             let a = (z1 - b * x2).checked_div(x1).unwrap_unchecked();
-            let res = a * 3 + b;
-            result += res * ((x1 * a + x2 * b, y1 * a + y2 * b) == (z1, z2)) as $ty;
+
+            result += (a * 3 + b) * ((x1 * a + x2 * b, y1 * a + y2 * b) == (z1, z2)) as $ty;
             // using ptr::add here would be UB
             remaining = remaining.wrapping_add(2);
         }
