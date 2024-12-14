@@ -9,7 +9,6 @@ criterion = { version = "2.7.2", package = "codspeed-criterion-compat", default-
 
 [dependencies]
 bstr = "1.11.0"
-memchr = "2.7.4"
 tinyvec = "1.8.0"
 
 [profile.release]
