@@ -2,21 +2,28 @@ use bstr::ByteSlice;
 use std::hint::unreachable_unchecked;
 
 unsafe fn both_parts<const OFFSET: i64>(input: &[u8]) -> i64 {
+    let mut remaining = input;
     let mut result = 0;
-    for block in input.split_str(b"\n\n") {
-        let x1 = parse2(block.get_unchecked(12..14));
-        let y1 = parse2(block.get_unchecked(18..20));
+    loop {
+        let x1 = parse2(remaining.get_unchecked(12..14));
+        let y1 = parse2(remaining.get_unchecked(18..20));
 
-        let x2 = parse2(block.get_unchecked(12 + 21..14 + 21));
-        let y2 = parse2(block.get_unchecked(18 + 21..20 + 21));
+        let x2 = parse2(remaining.get_unchecked(12 + 21..14 + 21));
+        let y2 = parse2(remaining.get_unchecked(18 + 21..20 + 21));
 
-        let [z1, z2] = parse_pair(block.as_ptr().add(9 + 42));
+        let [z1, z2] = parse_pair(remaining.as_ptr().add(9 + 42));
         let [z1, z2] = [z1 + OFFSET, z2 + OFFSET];
 
         // Help.
         let b = (z2 * x1 - z1 * y1) / (y2 * x1 - x2 * y1);
         let a = (z1 - b * x2) / x1;
         result += if (x1 * a + x2 * b, y1 * a + y2 * b) == (z1, z2) { a * 3 + b } else { 0 };
+
+        if remaining.len() < 80 {
+            break;
+        }
+        let nl_offset = remaining.get_unchecked(19 + 42..).find_byte(b'\n').unwrap_unchecked() + 19 + 42 + 2;
+        remaining = remaining.get_unchecked(nl_offset..);
     }
     result
 }
