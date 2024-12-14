@@ -1,8 +1,8 @@
 unsafe fn both_parts<const OFFSET: i64>(input: &[u8]) -> i64 {
     let mut remaining = input.as_ptr();
-    let end = input.as_ptr() as usize + input.len();
+    let end = input.as_ptr().add(input.len());
     let mut result = 0;
-    while (remaining as usize) < end {
+    while (remaining as usize) < end as usize {
         let x1 = parse2(remaining.add(12));
         let y1 = parse2(remaining.add(18));
 
