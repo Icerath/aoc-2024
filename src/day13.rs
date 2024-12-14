@@ -1,5 +1,7 @@
-use bstr::ByteSlice;
-use std::hint::unreachable_unchecked;
+use std::{
+    hint::unreachable_unchecked,
+    simd::{cmp::SimdPartialEq, u8x8, Simd},
+};
 
 unsafe fn both_parts<const OFFSET: i64>(input: &[u8]) -> i64 {
     let mut remaining = input;
@@ -22,7 +24,8 @@ unsafe fn both_parts<const OFFSET: i64>(input: &[u8]) -> i64 {
         if remaining.len() < 80 {
             break;
         }
-        let nl_offset = remaining.get_unchecked(19 + 42..).find_byte(b'\n').unwrap_unchecked() + 19 + 42 + 2;
+        let next = u8x8::from_array(remaining.get_unchecked(19 + 42..27 + 42).try_into().unwrap_unchecked());
+        let nl_offset = next.simd_eq(Simd::splat(b'\n')).first_set().unwrap() + 19 + 42 + 2;
         remaining = remaining.get_unchecked(nl_offset..);
     }
     result
