@@ -18,8 +18,7 @@ unsafe fn both_parts<const OFFSET: i64>(input: &[u8]) -> i64 {
         let b = (z2 * x1 - z1 * y1) / (y2 * x1 - x2 * y1);
         let a = (z1 - b * x2) / x1;
         result += if (x1 * a + x2 * b, y1 * a + y2 * b) == (z1, z2) { a * 3 + b } else { 0 };
-
-        if remaining.len() < 64 {
+        if remaining.len() < 2 {
             break;
         }
         remaining = remaining.get_unchecked(2..);
