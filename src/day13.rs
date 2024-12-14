@@ -1,5 +1,3 @@
-use std::hint::unreachable_unchecked;
-
 unsafe fn both_parts<const OFFSET: i64>(input: &[u8]) -> i64 {
     let mut remaining = input;
     let mut result = 0;
@@ -45,7 +43,7 @@ fn test_part2() {
 
 #[inline(always)]
 unsafe fn parse2(bytes: &[u8]) -> i64 {
-    (*bytes.get_unchecked(0) as i64 * 10 + *bytes.get_unchecked(1) as i64) - (b'0' as i64) * 11
+    (*bytes.get_unchecked(0) as i64 * 10 + *bytes.get_unchecked(1) as i64) - (b'0' as i64 * 11)
 }
 
 #[inline(always)]
@@ -53,24 +51,16 @@ unsafe fn parse_pair(ptr: &mut &[u8]) -> [i64; 2] {
     let mut lhs = parse2(ptr);
     *ptr = ptr.get_unchecked(2..);
 
-    loop {
-        match ptr.get_unchecked(0) {
-            b',' => break,
-            i @ b'0'..=b'9' => lhs = lhs * 10 + (i - b'0') as i64,
-            _ => unreachable_unchecked(),
-        }
+    while *ptr.get_unchecked(0) != b',' {
+        lhs = lhs * 10 + (*ptr.get_unchecked(0) - b'0') as i64;
         *ptr = ptr.get_unchecked(1..);
     }
     *ptr = ptr.get_unchecked(4..);
     let mut rhs = parse2(ptr);
 
     *ptr = ptr.get_unchecked(2..);
-    loop {
-        match ptr.get_unchecked(0) {
-            b'\n' => break,
-            i @ b'0'..=b'9' => rhs = rhs * 10 + (i - b'0') as i64,
-            _ => unreachable_unchecked(),
-        }
+    while *ptr.get_unchecked(0) != b'\n' {
+        rhs = rhs * 10 + (*ptr.get_unchecked(0) - b'0') as i64;
         *ptr = ptr.get_unchecked(1..);
     }
     [lhs, rhs]
