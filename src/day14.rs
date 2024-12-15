@@ -24,10 +24,10 @@ macro_rules! parse {
         } else {
             false
         };
-        let mut vx = ($ptr.read() - b'0') as i16;
+        let mut vx = ($ptr.read() - b'0');
         $ptr = $ptr.add(1);
         while $ptr.read() != b',' {
-            vx = vx * 10 + ($ptr.read() - b'0') as i16;
+            vx = vx * 10 + ($ptr.read() - b'0');
             $ptr = $ptr.add(1);
         }
         $ptr = $ptr.add(1);
@@ -38,16 +38,16 @@ macro_rules! parse {
         } else {
             false
         };
-        let mut vy = ($ptr.read() - b'0') as i16;
+        let mut vy = ($ptr.read() - b'0');
         $ptr = $ptr.add(1);
         while $ptr.read() != b'\n' {
-            vy = vy * 10 + ($ptr.read() - b'0') as i16;
+            vy = vy * 10 + ($ptr.read() - b'0');
             $ptr = $ptr.add(1);
         }
-        let vx = if vx_neg { WIDTH as i16 - vx } else { vx };
-        let vy = if vy_neg { HEIGHT as i16 - vy } else { vy };
+        let vx = if vx_neg { WIDTH as u8 - vx } else { vx };
+        let vy = if vy_neg { HEIGHT as u8 - vy } else { vy };
         $ptr = $ptr.add(1);
-        [px as i16, py as i16, vx, vy]
+        [px, py, vx, vy]
     }};
 }
 
@@ -56,8 +56,9 @@ pub fn part1(input: &str) -> u32 {
     let mut quadrants = [0u32; 4];
     for _ in 0..500 {
         let [px, py, vx, vy] = unsafe { parse!(remaining) };
-        let px = (px + vx * 100) % WIDTH as i16;
-        let py = (py + vy * 100) % HEIGHT as i16;
+        let [px, py, vx, vy] = [px as u16, py as u16, vx as u16, vy as u16];
+        let px = (px + vx * 100) % WIDTH as u16;
+        let py = (py + vy * 100) % HEIGHT as u16;
 
         #[expect(non_contiguous_range_endpoints)]
         match (px, py) {
@@ -74,10 +75,10 @@ pub fn part1(input: &str) -> u32 {
 #[expect(clippy::similar_names)]
 pub fn part2(input: &str) -> i32 {
     let mut remaining = input.as_ptr();
-    let mut pxs = [0i16; 500];
-    let mut vxs = [0i16; 500];
-    let mut pys = [0i16; 500];
-    let mut vys = [0i16; 500];
+    let mut pxs = [0u8; 500];
+    let mut vxs = [0u8; 500];
+    let mut pys = [0u8; 500];
+    let mut vys = [0u8; 500];
 
     for i in 0..500 {
         let [px, py, vx, vy] = unsafe { parse!(remaining) };
@@ -90,12 +91,12 @@ pub fn part2(input: &str) -> i32 {
     let mut x_min_seconds = 0;
     let mut x_min_value = u16::MAX;
 
-    for seconds in 0..WIDTH as i16 {
+    for seconds in 0..WIDTH as u16 {
         let mut x_sum = 0;
         for i in 0..500 {
-            let px = pxs[i];
-            let vx = vxs[i];
-            x_sum += ((px + (vx * seconds)) % WIDTH as i16).abs_diff(WIDTH as i16 / 2);
+            let px = pxs[i] as u16;
+            let vx = vxs[i] as u16;
+            x_sum += ((px + (vx * seconds)) % WIDTH as u16).abs_diff(WIDTH as u16 / 2);
         }
         if x_sum < x_min_value {
             x_min_value = x_sum;
@@ -106,12 +107,12 @@ pub fn part2(input: &str) -> i32 {
     let mut y_min_seconds = 0;
     let mut y_min_value = u16::MAX;
 
-    for seconds in 0..HEIGHT as i16 {
+    for seconds in 0..HEIGHT as u16 {
         let mut y_sum = 0;
         for i in 0..500 {
-            let py = pys[i];
-            let vy = vys[i];
-            y_sum += ((py + (vy * seconds)) % HEIGHT as i16).abs_diff(HEIGHT as i16 / 2);
+            let py = pys[i] as u16;
+            let vy = vys[i] as u16;
+            y_sum += ((py + (vy * seconds)) % HEIGHT as u16).abs_diff(HEIGHT as u16 / 2);
         }
         if y_sum < y_min_value {
             y_min_value = y_sum;
