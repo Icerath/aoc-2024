@@ -52,8 +52,8 @@ pub fn part1(input: &str) -> u32 {
     let mut quadrants = [0u32; 4];
     for _ in 0..500 {
         let [px, py, vx, vy] = unsafe { parse!(remaining) };
-        let px = (px + vx * 100).rem_euclid(101);
-        let py = (py + vy * 100).rem_euclid(103);
+        let px = (px + vx * 100).rem_euclid(WIDTH);
+        let py = (py + vy * 100).rem_euclid(HEIGHT);
 
         #[expect(non_contiguous_range_endpoints)]
         match (px, py) {
@@ -66,9 +66,6 @@ pub fn part1(input: &str) -> u32 {
     }
     quadrants.into_iter().product()
 }
-
-const WIDTH: i32 = 101;
-const HEIGHT: i32 = 103;
 
 #[expect(clippy::similar_names)]
 pub fn part2(input: &str) -> i32 {
@@ -89,14 +86,14 @@ pub fn part2(input: &str) -> i32 {
     let mut x_min_seconds = 0;
     let mut x_min_value = u32::MAX;
     for seconds in 0..WIDTH {
-        let mut x_value = 0;
+        let mut x_sum = 0;
         for i in 0..500 {
             let px = pxs[i];
             let vx = vxs[i];
-            x_value += (px + (vx * seconds)).rem_euclid(WIDTH).abs_diff(WIDTH / 2);
+            x_sum += (px + (vx * seconds)).rem_euclid(WIDTH).abs_diff(WIDTH / 2);
         }
-        if x_value < x_min_value {
-            x_min_value = x_value;
+        if x_sum < x_min_value {
+            x_min_value = x_sum;
             x_min_seconds = seconds;
         }
     }
@@ -105,24 +102,19 @@ pub fn part2(input: &str) -> i32 {
     let mut y_min_value = u32::MAX;
 
     for seconds in 0..HEIGHT {
-        let mut y_value = 0;
+        let mut y_sum = 0;
         for i in 0..500 {
             let py = pys[i];
             let vy = vys[i];
-            y_value += (py + (vy * seconds)).rem_euclid(HEIGHT).abs_diff(HEIGHT / 2);
+            y_sum += (py + (vy * seconds)).rem_euclid(HEIGHT).abs_diff(HEIGHT / 2);
         }
-        if y_value < y_min_value {
-            y_min_value = y_value;
+        if y_sum < y_min_value {
+            y_min_value = y_sum;
             y_min_seconds = seconds;
         }
     }
-    big_brain(x_min_seconds, y_min_seconds)
-}
-
-fn big_brain(x: i32, y: i32) -> i32 {
-    const MOD_INV_X: i32 = mod_inv(HEIGHT, WIDTH) * HEIGHT; //5253
-    const MOD_INV_Y: i32 = mod_inv(WIDTH, HEIGHT) * WIDTH; // 5151
-    ((x * MOD_INV_X) + (y * MOD_INV_Y)) % (HEIGHT * WIDTH)
+    ((x_min_seconds * mod_inv(HEIGHT, WIDTH) * HEIGHT) + (y_min_seconds * mod_inv(WIDTH, HEIGHT) * WIDTH))
+        % (HEIGHT * WIDTH)
 }
 
 // https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
@@ -139,7 +131,7 @@ const fn egcd(a: i32, b: i32) -> i32 {
 }
 
 const fn mod_inv(x: i32, n: i32) -> i32 {
-    (egcd(x, n) % n + n) % n
+    egcd(x, n).rem_euclid(n)
 }
 
 #[test]
@@ -151,3 +143,6 @@ fn test_part1() {
 fn test_part2() {
     assert_eq!(part2(include_str!("../input/day14.txt")), 6355);
 }
+
+const WIDTH: i32 = 101;
+const HEIGHT: i32 = 103;
