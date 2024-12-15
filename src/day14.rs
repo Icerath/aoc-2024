@@ -1,26 +1,53 @@
-use bstr::ByteSlice;
+macro_rules! parse {
+    ($remaining: ident) => {{
+        $remaining = $remaining.add(2);
+        let mut px = 0;
+        while $remaining.read() != b',' {
+            px = px * 10 + ($remaining.read() - b'0');
+            $remaining = $remaining.add(1);
+        }
+        $remaining = $remaining.add(1);
+        let mut py = 0;
+        while $remaining.read() != b' ' {
+            py = py * 10 + ($remaining.read() - b'0');
+            $remaining = $remaining.add(1);
+        }
+        $remaining = $remaining.add(3);
+
+        let vx_sign = if $remaining.read() == b'-' {
+            $remaining = $remaining.add(1);
+            -1
+        } else {
+            1
+        };
+        let mut vx = 0;
+        while $remaining.read() != b',' {
+            vx = vx * 10 + ($remaining.read() - b'0') as i32;
+            $remaining = $remaining.add(1);
+        }
+        $remaining = $remaining.add(1);
+
+        let vy_sign = if $remaining.read() == b'-' {
+            $remaining = $remaining.add(1);
+            -1
+        } else {
+            1
+        };
+        let mut vy = 0;
+        while $remaining.read() != b'\n' {
+            vy = vy * 10 + ($remaining.read() - b'0') as i32;
+            $remaining = $remaining.add(1);
+        }
+        $remaining = $remaining.add(1);
+        [px as i32, py as i32, vx * vx_sign, vy * vy_sign]
+    }};
+}
 
 pub fn part1(input: &str) -> u32 {
-    let mut remaining = input.as_bytes();
+    let mut remaining = input.as_ptr();
     let mut quadrants = [0u32; 4];
-    loop {
-        if remaining.is_empty() {
-            break;
-        }
-        remaining = &remaining[2..];
-        let comma = remaining.find_byte(b',').unwrap();
-        let px: i32 = remaining[..comma].to_str().unwrap().parse().unwrap();
-        remaining = &remaining[comma + 1..];
-        let space = remaining.find_byte(b' ').unwrap();
-        let py: i32 = remaining[..space].to_str().unwrap().parse().unwrap();
-        remaining = &remaining[space + 3..];
-        let comma = remaining.find_byte(b',').unwrap();
-        let vx: i32 = remaining[..comma].to_str().unwrap().parse().unwrap();
-        remaining = &remaining[comma + 1..];
-        let nl = remaining.find_byte(b'\n').unwrap();
-        let vy: i32 = remaining[..nl].to_str().unwrap().parse().unwrap();
-        remaining = &remaining[nl + 1..];
-
+    for _ in 0..500 {
+        let [px, py, vx, vy] = unsafe { parse!(remaining) };
         let px = (px + vx * 100).rem_euclid(101);
         let py = (py + vy * 100).rem_euclid(103);
 
@@ -40,26 +67,10 @@ const WIDTH: i32 = 101;
 const HEIGHT: i32 = 103;
 
 pub fn part2(input: &str) -> i32 {
-    let mut remaining = input.as_bytes();
-    let mut robots = vec![];
-    loop {
-        if remaining.is_empty() {
-            break;
-        }
-        remaining = &remaining[2..];
-        let comma = remaining.find_byte(b',').unwrap();
-        let px: i32 = remaining[..comma].to_str().unwrap().parse().unwrap();
-        remaining = &remaining[comma + 1..];
-        let space = remaining.find_byte(b' ').unwrap();
-        let py: i32 = remaining[..space].to_str().unwrap().parse().unwrap();
-        remaining = &remaining[space + 3..];
-        let comma = remaining.find_byte(b',').unwrap();
-        let vx: i32 = remaining[..comma].to_str().unwrap().parse().unwrap();
-        remaining = &remaining[comma + 1..];
-        let nl = remaining.find_byte(b'\n').unwrap();
-        let vy: i32 = remaining[..nl].to_str().unwrap().parse().unwrap();
-        remaining = &remaining[nl + 1..];
-        robots.push([px, py, vx, vy]);
+    let mut remaining = input.as_ptr();
+    let mut robots = [[0i32; 4]; 500];
+    for i in 0..500 {
+        robots[i] = unsafe { parse!(remaining) };
     }
 
     let mut x_min_seconds = 0;

@@ -20,6 +20,7 @@ must_use_candidate = "allow"
 cast_lossless = "allow"
 inline_always = "allow"
 range_plus_one = "allow"
+needless_range_loop = "allow"
 
 [[bench]]
 name = "bench_today"
