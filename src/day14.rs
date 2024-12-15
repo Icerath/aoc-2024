@@ -1,48 +1,48 @@
 macro_rules! parse {
-    ($remaining: ident) => {{
-        $remaining = $remaining.add(2);
-        let mut px = $remaining.read() - b'0';
-        $remaining = $remaining.add(1);
-        while $remaining.read() != b',' {
-            px = px * 10 + ($remaining.read() - b'0');
-            $remaining = $remaining.add(1);
+    ($ptr: ident) => {{
+        $ptr = $ptr.add(2);
+        let mut px = $ptr.read() - b'0';
+        $ptr = $ptr.add(1);
+        while $ptr.read() != b',' {
+            px = px * 10 + ($ptr.read() - b'0');
+            $ptr = $ptr.add(1);
         }
-        $remaining = $remaining.add(1);
-        let mut py = $remaining.read() - b'0';
-        $remaining = $remaining.add(1);
-        while $remaining.read() != b' ' {
-            py = py * 10 + ($remaining.read() - b'0');
-            $remaining = $remaining.add(1);
+        $ptr = $ptr.add(1);
+        let mut py = $ptr.read() - b'0';
+        $ptr = $ptr.add(1);
+        while $ptr.read() != b' ' {
+            py = py * 10 + ($ptr.read() - b'0');
+            $ptr = $ptr.add(1);
         }
-        $remaining = $remaining.add(3);
+        $ptr = $ptr.add(3);
 
-        let vx_sign = if $remaining.read() == b'-' {
-            $remaining = $remaining.add(1);
+        let vx_sign = if $ptr.read() == b'-' {
+            $ptr = $ptr.add(1);
             -1
         } else {
             1
         };
-        let mut vx = ($remaining.read() - b'0') as i32;
-        $remaining = $remaining.add(1);
-        while $remaining.read() != b',' {
-            vx = vx * 10 + ($remaining.read() - b'0') as i32;
-            $remaining = $remaining.add(1);
+        let mut vx = ($ptr.read() - b'0') as i32;
+        $ptr = $ptr.add(1);
+        while $ptr.read() != b',' {
+            vx = vx * 10 + ($ptr.read() - b'0') as i32;
+            $ptr = $ptr.add(1);
         }
-        $remaining = $remaining.add(1);
+        $ptr = $ptr.add(1);
 
-        let vy_sign = if $remaining.read() == b'-' {
-            $remaining = $remaining.add(1);
+        let vy_sign = if $ptr.read() == b'-' {
+            $ptr = $ptr.add(1);
             -1
         } else {
             1
         };
-        let mut vy = ($remaining.read() - b'0') as i32;
-        $remaining = $remaining.add(1);
-        while $remaining.read() != b'\n' {
-            vy = vy * 10 + ($remaining.read() - b'0') as i32;
-            $remaining = $remaining.add(1);
+        let mut vy = ($ptr.read() - b'0') as i32;
+        $ptr = $ptr.add(1);
+        while $ptr.read() != b'\n' {
+            vy = vy * 10 + ($ptr.read() - b'0') as i32;
+            $ptr = $ptr.add(1);
         }
-        $remaining = $remaining.add(1);
+        $ptr = $ptr.add(1);
         [px as i32, py as i32, vx * vx_sign, vy * vy_sign]
     }};
 }
