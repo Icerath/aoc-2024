@@ -108,18 +108,15 @@ fn big_brain(x: i32, y: i32) -> i32 {
     ((x * MOD_INV_X) + (y * MOD_INV_Y)) % (HEIGHT * WIDTH)
 }
 
-#[expect(clippy::many_single_char_names)]
 // https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
 const fn egcd(a: i32, b: i32) -> i32 {
     let (mut old_r, mut r) = (a, b);
     let (mut old_s, mut s) = (1, 0);
-    let (mut old_t, mut t) = (0, 1);
 
     while r != 0 {
         let quotient = old_r / r;
         (old_r, r) = (r, old_r - quotient * r);
         (old_s, s) = (s, old_s - quotient * s);
-        (old_t, t) = (t, old_t - quotient * t);
     }
     old_s
 }
