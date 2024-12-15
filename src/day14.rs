@@ -66,18 +66,29 @@ pub fn part1(input: &str) -> u32 {
 const WIDTH: i32 = 101;
 const HEIGHT: i32 = 103;
 
+#[expect(clippy::similar_names)]
 pub fn part2(input: &str) -> i32 {
     let mut remaining = input.as_ptr();
-    let mut robots = [[0i32; 4]; 500];
+    let mut pxs = [0i32; 500];
+    let mut vxs = [0i32; 500];
+    let mut pys = [0i32; 500];
+    let mut vys = [0i32; 500];
+
     for i in 0..500 {
-        robots[i] = unsafe { parse!(remaining) };
+        let [px, py, vx, vy] = unsafe { parse!(remaining) };
+        pxs[i] = px;
+        vxs[i] = vx;
+        pys[i] = py;
+        vys[i] = vy;
     }
 
     let mut x_min_seconds = 0;
     let mut x_min_value = u32::MAX;
     for seconds in 0..WIDTH {
         let mut x_value = 0;
-        for [px, _py, vx, _vy] in &robots {
+        for i in 0..500 {
+            let px = pxs[i];
+            let vx = vxs[i];
             x_value += (px + (vx * seconds)).rem_euclid(WIDTH).abs_diff(WIDTH / 2);
         }
         if x_value < x_min_value {
@@ -91,7 +102,9 @@ pub fn part2(input: &str) -> i32 {
 
     for seconds in 0..HEIGHT {
         let mut y_value = 0;
-        for [_px, py, _vx, vy] in &robots {
+        for i in 0..500 {
+            let py = pys[i];
+            let vy = vys[i];
             y_value += (py + (vy * seconds)).rem_euclid(HEIGHT).abs_diff(HEIGHT / 2);
         }
         if y_value < y_min_value {
