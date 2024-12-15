@@ -18,11 +18,11 @@ macro_rules! parse {
         }
         $ptr = $ptr.add(3);
 
-        let vx_sign = if $ptr.read() == b'-' {
+        let vx_neg = if $ptr.read() == b'-' {
             $ptr = $ptr.add(1);
-            -1
+            true
         } else {
-            1
+            false
         };
         let mut vx = ($ptr.read() - b'0') as i16;
         $ptr = $ptr.add(1);
@@ -32,11 +32,11 @@ macro_rules! parse {
         }
         $ptr = $ptr.add(1);
 
-        let vy_sign = if $ptr.read() == b'-' {
+        let vy_neg = if $ptr.read() == b'-' {
             $ptr = $ptr.add(1);
-            -1
+            true
         } else {
-            1
+            false
         };
         let mut vy = ($ptr.read() - b'0') as i16;
         $ptr = $ptr.add(1);
@@ -44,8 +44,10 @@ macro_rules! parse {
             vy = vy * 10 + ($ptr.read() - b'0') as i16;
             $ptr = $ptr.add(1);
         }
+        let vx = if vx_neg { WIDTH as i16 - vx } else { vx };
+        let vy = if vy_neg { HEIGHT as i16 - vy } else { vy };
         $ptr = $ptr.add(1);
-        [px as i16, py as i16, vx * vx_sign, vy * vy_sign]
+        [px as i16, py as i16, vx, vy]
     }};
 }
 
@@ -54,8 +56,8 @@ pub fn part1(input: &str) -> u32 {
     let mut quadrants = [0u32; 4];
     for _ in 0..500 {
         let [px, py, vx, vy] = unsafe { parse!(remaining) };
-        let px = (px + vx * 100).rem_euclid(WIDTH as _);
-        let py = (py + vy * 100).rem_euclid(HEIGHT as _);
+        let px = (px + vx * 100) % WIDTH as i16;
+        let py = (py + vy * 100) % HEIGHT as i16;
 
         #[expect(non_contiguous_range_endpoints)]
         match (px, py) {
@@ -93,7 +95,7 @@ pub fn part2(input: &str) -> i32 {
         for i in 0..500 {
             let px = pxs[i];
             let vx = vxs[i];
-            x_sum += (px + (vx * seconds)).rem_euclid(WIDTH as _).abs_diff(WIDTH as i16 / 2);
+            x_sum += ((px + (vx * seconds)) % WIDTH as i16).abs_diff(WIDTH as i16 / 2);
         }
         if x_sum < x_min_value {
             x_min_value = x_sum;
@@ -109,7 +111,7 @@ pub fn part2(input: &str) -> i32 {
         for i in 0..500 {
             let py = pys[i];
             let vy = vys[i];
-            y_sum += (py + (vy * seconds)).rem_euclid(HEIGHT as _).abs_diff(HEIGHT as i16 / 2);
+            y_sum += ((py + (vy * seconds)) % HEIGHT as i16).abs_diff(HEIGHT as i16 / 2);
         }
         if y_sum < y_min_value {
             y_min_value = y_sum;
