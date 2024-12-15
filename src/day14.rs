@@ -1,13 +1,15 @@
 macro_rules! parse {
     ($remaining: ident) => {{
         $remaining = $remaining.add(2);
-        let mut px = 0;
+        let mut px = $remaining.read() - b'0';
+        $remaining = $remaining.add(1);
         while $remaining.read() != b',' {
             px = px * 10 + ($remaining.read() - b'0');
             $remaining = $remaining.add(1);
         }
         $remaining = $remaining.add(1);
-        let mut py = 0;
+        let mut py = $remaining.read() - b'0';
+        $remaining = $remaining.add(1);
         while $remaining.read() != b' ' {
             py = py * 10 + ($remaining.read() - b'0');
             $remaining = $remaining.add(1);
@@ -20,7 +22,8 @@ macro_rules! parse {
         } else {
             1
         };
-        let mut vx = 0;
+        let mut vx = ($remaining.read() - b'0') as i32;
+        $remaining = $remaining.add(1);
         while $remaining.read() != b',' {
             vx = vx * 10 + ($remaining.read() - b'0') as i32;
             $remaining = $remaining.add(1);
@@ -33,7 +36,8 @@ macro_rules! parse {
         } else {
             1
         };
-        let mut vy = 0;
+        let mut vy = ($remaining.read() - b'0') as i32;
+        $remaining = $remaining.add(1);
         while $remaining.read() != b'\n' {
             vy = vy * 10 + ($remaining.read() - b'0') as i32;
             $remaining = $remaining.add(1);
