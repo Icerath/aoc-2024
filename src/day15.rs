@@ -1,9 +1,6 @@
 #![allow(clippy::cast_possible_truncation)]
 
-use std::{
-    hint::unreachable_unchecked,
-    simd::{cmp::SimdPartialEq, u8x64, Simd},
-};
+use std::hint::unreachable_unchecked;
 
 use bstr::ByteSlice;
 
@@ -39,14 +36,11 @@ unsafe fn part1_inner(input: &[u8]) -> usize {
         i += 1;
     }
     let mut result = 0;
-    for i in 0..50 {
-        let line = u8x64::load_or_default(grid.get_unchecked(i * 51..));
-        let mut mask = line.simd_eq(Simd::splat(b'O')).to_bitmask();
-        mask &= (1 << 50) - 1;
-        while mask > 0 {
-            let j = mask.trailing_zeros() as usize;
-            result += 100 * i + j;
-            mask &= mask - 1;
+    for j in 0..50 {
+        for i in 0..50 {
+            if grid[j + i * 51] == b'O' {
+                result += 100 * i + j;
+            }
         }
     }
     result
