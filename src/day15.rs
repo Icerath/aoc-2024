@@ -180,17 +180,10 @@ unsafe fn push_box_vertical(grid: &mut [u8; 100 * 50], pos: usize, dir: isize) {
 macro_rules! direction_lut {
     ($vert: literal) => {{
         let mut lut = [0; LARGEST_DIRECTION];
-        let mut i = 0;
-        while i < LARGEST_DIRECTION {
-            lut[i] = match i as u8 {
-                b'^' => -$vert,
-                b'>' => 1,
-                b'v' => $vert,
-                b'<' => -1,
-                _ => 0,
-            };
-            i += 1;
-        }
+        lut[b'^' as usize] = -$vert;
+        lut[b'>' as usize] = 1;
+        lut[b'v' as usize] = $vert;
+        lut[b'<' as usize] = -1;
         lut
     }};
 }
