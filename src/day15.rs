@@ -205,5 +205,5 @@ macro_rules! direction_lut {
 }
 
 const LARGEST_DIRECTION: usize = b'v' as usize + 1;
-const P1_DIRECTION_LUT: [isize; LARGEST_DIRECTION] = direction_lut!(51);
-const P2_DIRECTION_LUT: [isize; LARGEST_DIRECTION] = direction_lut!(100);
+static P1_DIRECTION_LUT: [isize; LARGEST_DIRECTION] = direction_lut!(51);
+static P2_DIRECTION_LUT: [isize; LARGEST_DIRECTION] = direction_lut!(100);
