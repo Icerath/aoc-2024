@@ -36,8 +36,8 @@ unsafe fn part1_inner(input: &[u8]) -> usize {
         i += 1;
     }
     let mut result = 0;
-    for j in 0..50 {
-        for i in 0..50 {
+    for j in 1..49 {
+        for i in 1..49 {
             if grid[j + i * 51] == b'O' {
                 result += 100 * i + j;
             }
