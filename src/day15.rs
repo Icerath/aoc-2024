@@ -18,21 +18,18 @@ unsafe fn part1_inner(input: &[u8]) -> usize {
 
     let mut i = 0;
     for _ in 0..20 {
-        'outer: for _ in 0..1000 {
+        for _ in 0..1000 {
             let dir = *directions.get_unchecked(i);
             let dir = *P1_DIRECTION_LUT.get_unchecked(dir as usize);
             i += 1;
 
             let next_pos = pos.wrapping_add_signed(dir);
             let mut end_pos = next_pos;
-
-            loop {
-                match *grid.get_unchecked(end_pos) {
-                    b'#' => continue 'outer,
-                    b'.' => break,
-                    b'O' => end_pos = end_pos.wrapping_add_signed(dir),
-                    _ => unreachable_unchecked(),
-                }
+            while *grid.get_unchecked(end_pos) == b'O' {
+                end_pos = end_pos.wrapping_add_signed(dir);
+            }
+            if *grid.get_unchecked(end_pos) == b'#' {
+                continue;
             }
             *grid.get_unchecked_mut(pos) = *grid.get_unchecked(end_pos);
             *grid.get_unchecked_mut(end_pos) = *grid.get_unchecked(next_pos);
