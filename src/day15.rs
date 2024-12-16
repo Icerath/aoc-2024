@@ -1,3 +1,5 @@
+#![allow(clippy::cast_possible_truncation)]
+
 use std::{
     hint::unreachable_unchecked,
     simd::{cmp::SimdPartialEq, u8x64, Simd},
@@ -12,32 +14,32 @@ pub fn part1(input: &str) -> usize {
 unsafe fn part1_inner(input: &[u8]) -> usize {
     let mut grid: [u8; 51 * 50] = input.get_unchecked(..51 * 50).try_into().unwrap_unchecked();
     let mut pos = input.find_byte(b'@').unwrap_unchecked();
-    let directions = input.get_unchecked(51 * 50 + 2..);
+    let directions = input.get_unchecked(51 * 50 + 1..);
 
-    'outer: for dir in directions {
-        let dir = match dir {
-            b'^' => -51,
-            b'>' => 1,
-            b'v' => 51,
-            b'<' => -1,
-            _ => continue,
-        };
+    let mut i = 0;
+    for _ in 0..20 {
+        'outer: for _ in 0..1000 {
+            let dir = *directions.get_unchecked(i);
+            let dir = *P1_DIRECTION_LUT.get_unchecked(dir as usize);
+            i += 1;
 
-        let next_pos = pos.wrapping_add_signed(dir);
-        let mut end_pos = next_pos;
+            let next_pos = pos.wrapping_add_signed(dir);
+            let mut end_pos = next_pos;
 
-        loop {
-            match *grid.get_unchecked(end_pos) {
-                b'#' => continue 'outer,
-                b'.' => break,
-                b'O' => end_pos = end_pos.wrapping_add_signed(dir),
-                _ => unreachable_unchecked(),
+            loop {
+                match *grid.get_unchecked(end_pos) {
+                    b'#' => continue 'outer,
+                    b'.' => break,
+                    b'O' => end_pos = end_pos.wrapping_add_signed(dir),
+                    _ => unreachable_unchecked(),
+                }
             }
+            *grid.get_unchecked_mut(pos) = *grid.get_unchecked(end_pos);
+            *grid.get_unchecked_mut(end_pos) = *grid.get_unchecked(next_pos);
+            *grid.get_unchecked_mut(next_pos) = b'@';
+            pos = next_pos;
         }
-        *grid.get_unchecked_mut(pos) = *grid.get_unchecked(end_pos);
-        *grid.get_unchecked_mut(end_pos) = *grid.get_unchecked(next_pos);
-        *grid.get_unchecked_mut(next_pos) = b'@';
-        pos = next_pos;
+        i += 1;
     }
     let mut result = 0;
     for i in 0..50 {
@@ -58,7 +60,7 @@ pub fn part2(input: &str) -> usize {
 }
 
 unsafe fn part2_inner(input: &[u8]) -> usize {
-    let directions = input.get_unchecked(51 * 50 + 2..);
+    let directions = input.get_unchecked(51 * 50 + 1..);
     let pos = input.find_byte(b'@').unwrap_unchecked();
     let mut pos = pos % 51 * 2 + pos / 51 * 100;
 
@@ -77,23 +79,21 @@ unsafe fn part2_inner(input: &[u8]) -> usize {
         }
     }
 
-    for dir in directions {
-        let dir = match dir {
-            b'^' => -100,
-            b'>' => 1,
-            b'v' => 100,
-            b'<' => -1,
-            _ => continue,
-        };
-
-        let next_pos = pos.wrapping_add_signed(dir);
-        if !can_push_box(&grid, next_pos, dir) {
-            continue;
-        };
-        push_box(&mut grid, next_pos, dir);
-        *grid.get_unchecked_mut(next_pos) = b'@';
-        *grid.get_unchecked_mut(pos) = b'.';
-        pos = next_pos;
+    let mut i = 0;
+    for _ in 0..20 {
+        for _ in 0..1000 {
+            let dir = *P2_DIRECTION_LUT.get_unchecked(directions[i] as usize);
+            i += 1;
+            let next_pos = pos.wrapping_add_signed(dir);
+            if !can_push_box(&grid, next_pos, dir) {
+                continue;
+            };
+            push_box(&mut grid, next_pos, dir);
+            *grid.get_unchecked_mut(next_pos) = b'@';
+            *grid.get_unchecked_mut(pos) = b'.';
+            pos = next_pos;
+        }
+        i += 1;
     }
     let mut result = 0;
     for i in 1..49 {
@@ -185,3 +185,25 @@ unsafe fn push_box_vertical(grid: &mut [u8; 100 * 50], pos: usize, dir: isize) {
         _ => unreachable_unchecked(),
     }
 }
+
+macro_rules! direction_lut {
+    ($vert: literal) => {{
+        let mut lut = [0; LARGEST_DIRECTION];
+        let mut i = 0;
+        while i < LARGEST_DIRECTION {
+            lut[i] = match i as u8 {
+                b'^' => -$vert,
+                b'>' => 1,
+                b'v' => $vert,
+                b'<' => -1,
+                _ => 0,
+            };
+            i += 1;
+        }
+        lut
+    }};
+}
+
+const LARGEST_DIRECTION: usize = b'v' as usize + 1;
+const P1_DIRECTION_LUT: [isize; LARGEST_DIRECTION] = direction_lut!(51);
+const P2_DIRECTION_LUT: [isize; LARGEST_DIRECTION] = direction_lut!(100);
