@@ -49,8 +49,8 @@ unsafe fn part1_inner(input: &[u8]) -> (usize, usize, u32) {
                 let next_cost = cost + (TURN_COST_INCR - 1);
                 if next_cost < *VISITED.get_unchecked(pos).get_unchecked(dir as usize) {
                     let bucket = (next_cost % BUCKET_QUEUE_SIZE) as usize;
-                    QUEUE[bucket].push((pos, dir));
-                    VISITED[pos][dir as usize] = next_cost;
+                    QUEUE.get_unchecked_mut(bucket).push((pos, dir));
+                    *VISITED.get_unchecked_mut(pos).get_unchecked_mut(dir as usize) = next_cost;
                 }
             }
         }
