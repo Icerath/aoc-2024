@@ -1,7 +1,6 @@
 #![feature(array_windows)]
 #![feature(portable_simd)]
 #![feature(iter_array_chunks)]
-
 // pub mod day1;
 // pub mod day10;
 // pub mod day11;
@@ -20,4 +19,5 @@
 // pub mod day8;
 // pub mod day9;
 // pub mod day18;
-pub mod day19;
+// pub mod day19;
+pub mod day20;
