@@ -11,7 +11,7 @@ macro_rules! bench_day {
         }
 
         fn bench_part2(c: &mut Criterion) {
-            let input = include_str!("../input/day20.txt");
+            let input = include_str!(concat!("../input/", stringify!($day), ".txt"));
             c.bench_function(concat!(stringify!($day), " part2"), |b| b.iter(|| part2(black_box(input))));
             assert_eq!(part2(input), PART2_OUT);
         }
