@@ -113,17 +113,5 @@ pub fn part2(input: &str) -> u32 {
     unsafe { part2_inner(input.as_bytes()) }
 }
 
-#[test]
-fn test_part1() {
-    let _guard = LOCK.lock();
-    assert_eq!(part1(include_str!("../input/day20.txt")), 1338);
-}
-
-#[test]
-fn test_part2() {
-    let _guard = LOCK.lock();
-    assert_eq!(part2(include_str!("../input/day20.txt")), 975_376);
-}
-
-#[cfg(test)]
-static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+pub const PART1_OUT: u16 = 1338;
+pub const PART2_OUT: u32 = 975_376;
