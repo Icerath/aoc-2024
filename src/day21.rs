@@ -1,10 +1,10 @@
 use std::{hint::assert_unchecked, mem::transmute};
 
-#[inline(always)]
+#[inline(never)]
 pub fn part1(input: &str) -> u64 {
     unsafe { both_parts(input.as_bytes(), &LUT_P1) }
 }
-#[inline(always)]
+#[inline(never)]
 pub fn part2(input: &str) -> u64 {
     unsafe { both_parts(input.as_bytes(), &LUT_P2) }
 }
