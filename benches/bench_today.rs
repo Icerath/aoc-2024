@@ -21,4 +21,4 @@ macro_rules! bench_day {
     };
 }
 
-bench_day!(day20);
+bench_day!(day21);
