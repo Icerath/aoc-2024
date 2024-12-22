@@ -1,10 +1,10 @@
 use std::ops::Add;
 
-#[inline(never)]
+#[inline(always)]
 pub fn part1(input: &str) -> u32 {
     unsafe { both_parts(input.as_bytes(), &LUT_P1) }
 }
-#[inline(never)]
+#[inline(always)]
 pub fn part2(input: &str) -> u64 {
     unsafe { both_parts(input.as_bytes(), &LUT_P2) }
 }
