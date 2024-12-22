@@ -27,8 +27,9 @@ unsafe fn both_parts(input: &[u8], lut: &[u64; 1000]) -> u64 {
     let n4 = i(15) * 100 + i(16) * 10 + i(17);
     let n5 = i(20) * 100 + i(21) * 10 + i(22);
 
-    macro_rules! assert_lt { ($($idx: ident),+) => { $(assert!($idx < 1000));+ }; }
-    assert_lt!(n1, n2, n3, n4, n5);
-
-    lut[n1] + lut[n2] + lut[n3] + lut[n4] + lut[n5]
+    lut.get_unchecked(n1)
+        + lut.get_unchecked(n2)
+        + lut.get_unchecked(n3)
+        + lut.get_unchecked(n4)
+        + lut.get_unchecked(n5)
 }
