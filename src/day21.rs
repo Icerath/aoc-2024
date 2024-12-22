@@ -17,9 +17,9 @@ pub const PART2_OUT: u64 = 167_538_833_832_712;
 
 #[inline(always)]
 unsafe fn both_parts(input: &[u8], lut: &[u64; 1000]) -> u64 {
-    let input: &[u8; 25] = input.try_into().unwrap_unchecked();
+    let input = input.as_ptr();
 
-    let i = |i: usize| (input[i] - b'0') as usize;
+    let i = |i: usize| (input.add(i).read() - b'0') as usize;
 
     let n1 = i(0) * 100 + i(1) * 10 + i(2);
     let n2 = i(5) * 100 + i(6) * 10 + i(7);
