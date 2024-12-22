@@ -7,7 +7,7 @@ macro_rules! bench_day {
         fn bench_part1(c: &mut Criterion) {
             #[inline(never)]
             fn routine(input: &str) -> impl std::fmt::Display {
-                part2(black_box(input))
+                part1(black_box(input))
             }
             let input = include_str!(concat!("../input/", stringify!($day), ".txt"));
             c.bench_function(concat!(stringify!($day), " part1"), |b| b.iter(|| routine(input)));
