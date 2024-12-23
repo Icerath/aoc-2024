@@ -1,7 +1,6 @@
 #![feature(array_windows)]
 #![feature(portable_simd)]
 #![feature(iter_array_chunks)]
-#![feature(integer_sign_cast)]
 // pub mod day1;
 // pub mod day2;
 // pub mod day3;
