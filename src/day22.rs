@@ -40,13 +40,13 @@ unsafe fn part2_inner(mut input: &[u8]) -> u32 {
         for i in 1..4 {
             number = evolve(number);
             let price = (number % 10) as u8;
-            changes[i] = change(prev, price);
+            changes[i] = difference(prev, price);
             prev = price;
         }
         for _ in 0..1997 {
             number = evolve(number);
             let price = (number % 10) as u8;
-            changes = u32x4::from([changes[1], changes[2], changes[3], change(prev, price)]);
+            changes = u32x4::from([changes[1], changes[2], changes[3], difference(prev, price)]);
 
             let index = to_index(u32x4::from(changes));
             assert_unchecked(index < P4);
@@ -57,7 +57,7 @@ unsafe fn part2_inner(mut input: &[u8]) -> u32 {
             prev = price;
         }
     }
-    *sequences.iter().max().unwrap()
+    *sequences.iter().max().unwrap_unchecked()
 }
 
 const P1: u32 = 19u32.pow(1);
@@ -65,10 +65,12 @@ const P2: u32 = 19u32.pow(2);
 const P3: u32 = 19u32.pow(3);
 const P4: usize = 19usize.pow(4);
 
-fn change(prev: u8, price: u8) -> u32 {
+#[inline(always)]
+fn difference(prev: u8, price: u8) -> u32 {
     (9 + price - prev) as u32
 }
 
+#[inline(always)]
 fn to_index(changes: u32x4) -> usize {
     (u32x4::from(changes) * const { u32x4::from_array([P3, P2, P1, 1]) }).reduce_sum() as usize
 }
