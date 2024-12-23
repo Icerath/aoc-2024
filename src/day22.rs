@@ -1,5 +1,6 @@
 #![expect(clippy::missing_panics_doc)]
-use std::collections::{HashMap, HashSet};
+
+use std::simd::{num::SimdUint, u32x4};
 
 pub fn part1(input: &str) -> u64 {
     let mut sum = 0;
@@ -13,35 +14,49 @@ pub fn part1(input: &str) -> u64 {
     sum
 }
 
-#[expect(clippy::cast_possible_wrap)]
 pub fn part2(input: &str) -> u32 {
-    let mut sequences = HashMap::new();
-    let mut seen = HashSet::new();
+    let mut sequences = vec![0; P4];
+    let mut seen = vec![false; P4];
     for line in input.lines() {
-        seen.clear();
+        seen.fill(false);
         let mut number = line.parse().unwrap();
         let mut prev = (number % 10) as u8;
-        let mut changes = [0; 4];
+        let mut changes = u32x4::splat(0);
 
         for i in 1..4 {
             number = evolve(number);
             let price = (number % 10) as u8;
-            changes[i] = price as i8 - prev as i8;
+            changes[i] = change(prev, price);
             prev = price;
         }
         for _ in 0..1997 {
             number = evolve(number);
             let price = (number % 10) as u8;
-            changes = [changes[1], changes[2], changes[3], price as i8 - prev as i8];
+            changes = u32x4::from([changes[1], changes[2], changes[3], change(prev, price)]);
             prev = price;
+            let index = to_index(u32x4::from(changes));
+            assert!(index < P4);
 
-            if !seen.insert(changes) {
+            if std::mem::replace(&mut seen[index], true) {
                 continue;
             }
-            *sequences.entry(changes).or_default() += price as u32;
+            sequences[index] += price as u32;
         }
     }
-    *sequences.values().max().unwrap()
+    sequences.into_iter().max().unwrap()
+}
+
+const P1: u32 = 19u32.pow(1);
+const P2: u32 = 19u32.pow(2);
+const P3: u32 = 19u32.pow(3);
+const P4: usize = 19usize.pow(4);
+
+fn change(prev: u8, price: u8) -> u32 {
+    (9 + price - prev) as u32
+}
+
+fn to_index(changes: u32x4) -> usize {
+    (u32x4::from(changes) * const { u32x4::from_array([P3, P2, P1, 1]) }).reduce_sum() as usize
 }
 
 fn evolve(mut secret: u32) -> u32 {
