@@ -1,5 +1,3 @@
-#![expect(clippy::missing_panics_doc)]
-
 use std::{
     hint::assert_unchecked,
     mem::transmute,
@@ -7,11 +5,19 @@ use std::{
 };
 
 pub fn part1(input: &str) -> u64 {
+    unsafe { part1_inner(input.as_bytes()) }
+}
+unsafe fn part1_inner(mut input: &[u8]) -> u64 {
     static LUT: [u32; PRUNE as usize] = unsafe { transmute(*include_bytes!("../luts/d22")) };
     let mut sum = 0;
-    for line in input.lines() {
-        let secret_number = line.parse::<u32>().unwrap();
-        sum += LUT[secret_number as usize] as u64;
+    while !input.is_empty() {
+        let mut number = 0;
+        while *input.get_unchecked(0) != b'\n' {
+            number = number * 10 + (input.get_unchecked(0) - b'0') as u32;
+            input = input.get_unchecked(1..);
+        }
+        input = input.get_unchecked(1..);
+        sum += LUT[number as usize] as u64;
     }
     sum
 }
