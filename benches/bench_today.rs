@@ -29,4 +29,4 @@ macro_rules! bench_day {
     };
 }
 
-bench_day!(day21);
+bench_day!(day22);
