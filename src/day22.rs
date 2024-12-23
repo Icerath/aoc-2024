@@ -2,17 +2,16 @@
 
 use std::{
     hint::assert_unchecked,
+    mem::transmute,
     simd::{num::SimdUint, u32x4},
 };
 
 pub fn part1(input: &str) -> u64 {
+    static LUT: [u32; PRUNE as usize] = unsafe { transmute(*include_bytes!("../luts/d22")) };
     let mut sum = 0;
     for line in input.lines() {
-        let mut secret_number = line.parse::<u32>().unwrap();
-        for _ in 0..2000 {
-            secret_number = evolve(secret_number);
-        }
-        sum += secret_number as u64;
+        let secret_number = line.parse::<u32>().unwrap();
+        sum += LUT[secret_number as usize] as u64;
     }
     sum
 }
