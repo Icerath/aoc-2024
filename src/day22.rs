@@ -82,9 +82,9 @@ fn to_index(changes: u32x4) -> usize {
 }
 
 fn evolve(mut secret: u32) -> u32 {
-    secret = ((secret.wrapping_mul(64)) ^ secret) % PRUNE;
-    secret = ((secret / 32) ^ secret) % PRUNE;
-    secret = ((secret.wrapping_mul(2048)) ^ secret) % PRUNE;
+    secret = ((secret.wrapping_mul(64)) ^ secret) & (PRUNE - 1);
+    secret = ((secret / 32) ^ secret) & (PRUNE - 1);
+    secret = ((secret.wrapping_mul(2048)) ^ secret) & (PRUNE - 1);
     secret
 }
 const PRUNE: u32 = 1 << 24; // 16777216
