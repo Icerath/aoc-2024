@@ -17,11 +17,11 @@ pub fn part1(input: &str) -> u64 {
     sum
 }
 
-pub fn part2(input: &str) -> u32 {
+pub fn part2(input: &str) -> u16 {
     unsafe { part2_inner(input.as_bytes()) }
 }
 
-unsafe fn part2_inner(mut input: &[u8]) -> u32 {
+unsafe fn part2_inner(mut input: &[u8]) -> u16 {
     let mut sequences = vec![0; P4];
     let mut seen = vec![0u64; P4 / 64];
 
@@ -53,7 +53,7 @@ unsafe fn part2_inner(mut input: &[u8]) -> u32 {
 
             let is_new = seen[index / 64] & (1 << (index % 64)) == 0;
             seen[index / 64] |= 1 << (index % 64);
-            sequences[index] += price as u32 * is_new as u32;
+            sequences[index] += price as u16 * is_new as u16;
             prev = price;
         }
     }
@@ -81,8 +81,7 @@ fn evolve(mut secret: u32) -> u32 {
     secret = ((secret.wrapping_mul(2048)) ^ secret) % PRUNE;
     secret
 }
-
 const PRUNE: u32 = 1 << 24; // 16777216
 
 pub const PART1_OUT: u64 = 15_006_633_487;
-pub const PART2_OUT: u32 = 1710;
+pub const PART2_OUT: u16 = 1710;
