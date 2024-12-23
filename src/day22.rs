@@ -18,15 +18,22 @@ pub fn part1(input: &str) -> u64 {
 }
 
 pub fn part2(input: &str) -> u32 {
-    unsafe { part2_inner(input) }
+    unsafe { part2_inner(input.as_bytes()) }
 }
 
-unsafe fn part2_inner(input: &str) -> u32 {
+unsafe fn part2_inner(mut input: &[u8]) -> u32 {
     let mut sequences = vec![0; P4];
-    let mut seen = vec![false; P4];
-    for line in input.lines() {
-        seen.fill(false);
-        let mut number = line.parse().unwrap();
+    let mut seen = vec![0u64; P4 / 64];
+
+    while !input.is_empty() {
+        let mut number = 0;
+        while *input.get_unchecked(0) != b'\n' {
+            number = number * 10 + (input.get_unchecked(0) - b'0') as u32;
+            input = input.get_unchecked(1..);
+        }
+        input = input.get_unchecked(1..);
+        seen.fill(0);
+
         let mut prev = (number % 10) as u8;
         let mut changes = u32x4::splat(0);
 
@@ -44,12 +51,13 @@ unsafe fn part2_inner(input: &str) -> u32 {
             let index = to_index(u32x4::from(changes));
             assert_unchecked(index < P4);
 
-            let is_new = !std::mem::replace(&mut seen[index], true);
+            let is_new = seen[index / 64] & (1 << (index % 64)) == 0;
+            seen[index / 64] |= 1 << (index % 64);
             sequences[index] += price as u32 * is_new as u32;
             prev = price;
         }
     }
-    sequences.into_iter().max().unwrap()
+    *sequences.iter().max().unwrap()
 }
 
 const P1: u32 = 19u32.pow(1);
