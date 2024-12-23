@@ -78,13 +78,14 @@ fn difference(prev: u8, price: u8) -> u32 {
 
 #[inline(always)]
 fn to_index(changes: u32x4) -> usize {
-    (u32x4::from(changes) * const { u32x4::from_array([P3, P2, P1, 1]) }).reduce_sum() as usize
+    (changes * const { u32x4::from_array([P3, P2, P1, 1]) }).reduce_sum() as usize
 }
 
+#[inline(always)]
 fn evolve(mut secret: u32) -> u32 {
-    secret = ((secret.wrapping_mul(64)) ^ secret) & (PRUNE - 1);
-    secret = ((secret / 32) ^ secret) & (PRUNE - 1);
-    secret = ((secret.wrapping_mul(2048)) ^ secret) & (PRUNE - 1);
+    secret = ((secret << 6) ^ secret) & (PRUNE - 1);
+    secret = ((secret >> 5) ^ secret) & (PRUNE - 1);
+    secret = ((secret << 11) ^ secret) & (PRUNE - 1);
     secret
 }
 const PRUNE: u32 = 1 << 24; // 16777216
