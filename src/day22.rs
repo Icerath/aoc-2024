@@ -50,6 +50,7 @@ unsafe fn part2_inner(mut input: &[u8]) -> u16 {
 
             let index = to_index(u32x4::from(changes));
             assert_unchecked(index < P4);
+            assert_unchecked(index / 64 < P4 / 64);
 
             let is_new = seen[index / 64] & (1 << (index % 64)) == 0;
             seen[index / 64] |= 1 << (index % 64);
