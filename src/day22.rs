@@ -1,6 +1,9 @@
 #![expect(clippy::missing_panics_doc)]
 
-use std::simd::{num::SimdUint, u32x4};
+use std::{
+    hint::assert_unchecked,
+    simd::{num::SimdUint, u32x4},
+};
 
 pub fn part1(input: &str) -> u64 {
     let mut sum = 0;
@@ -15,6 +18,10 @@ pub fn part1(input: &str) -> u64 {
 }
 
 pub fn part2(input: &str) -> u32 {
+    unsafe { part2_inner(input) }
+}
+
+unsafe fn part2_inner(input: &str) -> u32 {
     let mut sequences = vec![0; P4];
     let mut seen = vec![false; P4];
     for line in input.lines() {
@@ -33,14 +40,13 @@ pub fn part2(input: &str) -> u32 {
             number = evolve(number);
             let price = (number % 10) as u8;
             changes = u32x4::from([changes[1], changes[2], changes[3], change(prev, price)]);
-            prev = price;
-            let index = to_index(u32x4::from(changes));
-            assert!(index < P4);
 
-            if std::mem::replace(&mut seen[index], true) {
-                continue;
-            }
-            sequences[index] += price as u32;
+            let index = to_index(u32x4::from(changes));
+            assert_unchecked(index < P4);
+
+            let is_new = !std::mem::replace(&mut seen[index], true);
+            sequences[index] += price as u32 * is_new as u32;
+            prev = price;
         }
     }
     sequences.into_iter().max().unwrap()
