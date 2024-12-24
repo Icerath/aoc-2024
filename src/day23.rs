@@ -67,7 +67,7 @@ unsafe fn part2_inner(input: &[u8]) -> &'static str {
         clique.clear();
     }
 
-    longest.sort_unstable_by_key(|computer| [computer / 26, computer % 26]);
+    longest.sort_unstable();
     let mut str_len = 0;
     for computer in longest {
         *STR_OUTPUT.get_unchecked_mut(str_len) = (computer / 26) as u8 + b'a';
