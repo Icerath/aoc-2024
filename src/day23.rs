@@ -1,6 +1,7 @@
-use std::hint::assert_unchecked;
+use std::hint::{assert_unchecked, unreachable_unchecked};
 
 use rustc_hash::FxHashMap as HashMap;
+use tinyvec::ArrayVec;
 
 pub fn part1(input: &str) -> u32 {
     unsafe { part1_inner(input.as_bytes()) }
@@ -10,16 +11,22 @@ pub fn part2(input: &str) -> String {
     part2_inner(input.as_bytes())
 }
 
+// FIXME: choose a logical number
+const MAX_CONNECTIONS: usize = 32;
+
 unsafe fn part1_inner(mut input: &[u8]) -> u32 {
-    let mut nodes = [const { vec![] }; 26 * 26];
+    let mut nodes = vec![ArrayVec::<[u16; MAX_CONNECTIONS]>::new(); 26 * 26];
     let mut edges = vec![[false; 26 * 26]; 26 * 26];
     while !input.is_empty() {
         assert_unchecked(input.len() >= 6);
         let lhs = 26 * (input[0] - b'a') as u16 + (input[1] - b'a') as u16;
         let rhs = 26 * (input[3] - b'a') as u16 + (input[4] - b'a') as u16;
 
-        nodes[lhs as usize].push(rhs);
-        nodes[rhs as usize].push(lhs);
+        assert_unchecked(lhs < 26 * 26);
+        assert_unchecked(rhs < 26 * 26);
+
+        let None = nodes[lhs as usize].try_push(rhs) else { unreachable_unchecked() };
+        let None = nodes[rhs as usize].try_push(lhs) else { unreachable_unchecked() };
 
         edges[lhs as usize][rhs as usize] = true;
         edges[rhs as usize][lhs as usize] = true;
