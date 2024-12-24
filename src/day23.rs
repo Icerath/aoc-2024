@@ -53,12 +53,10 @@ unsafe fn part2_inner(input: &[u8]) -> &'static str {
             if *seen.get_unchecked(b as usize) {
                 continue;
             }
-            *seen.get_unchecked_mut(b as usize) = true;
-            let connected = clique.iter().all(|&c| NODES.get_unchecked(b as usize).contains(&c));
-            let len = clique.len();
-            *clique.as_mut_ptr().add(len) = b;
-            assert_unchecked(len + (connected as usize) < MAX_CONNECTIONS);
-            clique.set_len(len + connected as usize);
+            if clique.iter().all(|&c| NODES.get_unchecked(b as usize).contains(&c)) {
+                *seen.get_unchecked_mut(b as usize) = true;
+                clique.push(b);
+            }
         }
         if clique.len() > longest.len() {
             std::mem::swap(&mut longest, &mut clique);
