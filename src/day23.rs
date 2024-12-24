@@ -16,8 +16,21 @@ pub fn part2(input: &str) -> String {
 const MAX_CONNECTIONS: usize = 16;
 
 #[inline(always)]
-unsafe fn part1_inner(input: &[u8]) -> u32 {
-    parse(input);
+unsafe fn part1_inner(mut input: &[u8]) -> u32 {
+    NODES.fill(ArrayVec::from_array_empty([0; MAX_CONNECTIONS]));
+    while !input.is_empty() {
+        assert_unchecked(input.len() >= 6);
+        let lhs = 26 * (input[0] - b'a') as u16 + (input[1] - b'a') as u16;
+        let rhs = 26 * (input[3] - b'a') as u16 + (input[4] - b'a') as u16;
+
+        assert_unchecked(lhs < 26 * 26);
+        assert_unchecked(rhs < 26 * 26);
+
+        let None = NODES[lhs as usize].try_push(rhs) else { unreachable_unchecked() };
+        let None = NODES[rhs as usize].try_push(lhs) else { unreachable_unchecked() };
+
+        input = &input[6..];
+    }
     let mut sum = 0;
     for a in 494u16..520 {
         for (i, &b) in NODES.get_unchecked(a as usize).iter().enumerate() {
@@ -25,7 +38,7 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
                 continue;
             }
             for &c in NODES.get_unchecked(a as usize).get_unchecked(i + 1..) {
-                if c >= 494 && c < a || !EDGES.get_unchecked(b as usize).get_unchecked(c as usize) {
+                if c >= 494 && c < a || !NODES.get_unchecked(b as usize).contains(&c) {
                     continue;
                 }
                 sum += 1;
