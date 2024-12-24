@@ -8,7 +8,7 @@ pub fn part1(input: &str) -> u32 {
 }
 
 #[inline(always)]
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> &'static str {
     unsafe { part2_inner(input.as_bytes()) }
 }
 
@@ -36,7 +36,9 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
 }
 
 #[inline(always)]
-unsafe fn part2_inner(input: &[u8]) -> String {
+unsafe fn part2_inner(input: &[u8]) -> &'static str {
+    static mut STR_OUTPUT: [u8; 64] = [b','; 64];
+
     parse(input);
 
     let mut longest = ArrayVec::<[u16; MAX_CONNECTIONS]>::new();
@@ -66,14 +68,14 @@ unsafe fn part2_inner(input: &[u8]) -> String {
     }
 
     longest.sort_unstable_by_key(|computer| [computer / 26, computer % 26]);
-    let mut result = vec![];
+    let mut str_len = 0;
     for computer in longest {
-        let lhs = (computer / 26) as u8 + b'a';
-        let rhs = (computer % 26) as u8 + b'a';
-        result.extend([lhs, rhs, b',']);
+        *STR_OUTPUT.get_unchecked_mut(str_len) = (computer / 26) as u8 + b'a';
+        str_len += 1;
+        *STR_OUTPUT.get_unchecked_mut(str_len) = (computer % 26) as u8 + b'a';
+        str_len += 2;
     }
-    result.pop();
-    String::from_utf8(result).unwrap()
+    std::str::from_utf8_unchecked(STR_OUTPUT.get_unchecked(..str_len - 1))
 }
 
 static mut NODES: [ArrayVec<[u16; MAX_CONNECTIONS]>; 26 * 26] =
