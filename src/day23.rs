@@ -13,7 +13,7 @@ pub fn part2(input: &str) -> String {
 }
 
 // FIXME: choose a logical number
-const MAX_CONNECTIONS: usize = 32;
+const MAX_CONNECTIONS: usize = 16;
 
 #[inline(always)]
 unsafe fn part1_inner(input: &[u8]) -> u32 {
