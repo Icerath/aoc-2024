@@ -1,26 +1,30 @@
+use std::hint::assert_unchecked;
+
 use rustc_hash::FxHashMap as HashMap;
 
 pub fn part1(input: &str) -> u32 {
-    part1_inner(input.as_bytes())
+    unsafe { part1_inner(input.as_bytes()) }
 }
 
 pub fn part2(input: &str) -> String {
     part2_inner(input.as_bytes())
 }
 
-fn part1_inner(input: &[u8]) -> u32 {
-    let input = &input[..input.len() - 1];
+unsafe fn part1_inner(mut input: &[u8]) -> u32 {
     let mut nodes = [const { vec![] }; 26 * 26];
     let mut edges = vec![[false; 26 * 26]; 26 * 26];
-    for line in input.split(|&b| b == b'\n') {
-        let lhs = 26 * (line[0] - b'a') as u16 + (line[1] - b'a') as u16;
-        let rhs = 26 * (line[3] - b'a') as u16 + (line[4] - b'a') as u16;
+    while !input.is_empty() {
+        assert_unchecked(input.len() >= 6);
+        let lhs = 26 * (input[0] - b'a') as u16 + (input[1] - b'a') as u16;
+        let rhs = 26 * (input[3] - b'a') as u16 + (input[4] - b'a') as u16;
 
         nodes[lhs as usize].push(rhs);
         nodes[rhs as usize].push(lhs);
 
         edges[lhs as usize][rhs as usize] = true;
         edges[rhs as usize][lhs as usize] = true;
+
+        input = &input[6..];
     }
     let mut seen = [false; 26 * 26];
     let mut sum = 0;
