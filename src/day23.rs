@@ -80,7 +80,7 @@ unsafe fn part2_inner(mut input: &[u8]) -> String {
             if b < a {
                 continue;
             }
-            if clique.iter().all(|&c| edges[b as usize][c as usize]) {
+            if clique.iter().all(|&c| *edges.get_unchecked(b as usize).get_unchecked(c as usize)) {
                 clique.push(b);
             }
         }
