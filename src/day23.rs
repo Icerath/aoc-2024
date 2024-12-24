@@ -2,10 +2,12 @@
 use std::hint::{assert_unchecked, unreachable_unchecked};
 use tinyvec::ArrayVec;
 
+#[inline(always)]
 pub fn part1(input: &str) -> u32 {
     unsafe { part1_inner(input.as_bytes()) }
 }
 
+#[inline(always)]
 pub fn part2(input: &str) -> String {
     unsafe { part2_inner(input.as_bytes()) }
 }
@@ -13,6 +15,7 @@ pub fn part2(input: &str) -> String {
 // FIXME: choose a logical number
 const MAX_CONNECTIONS: usize = 32;
 
+#[inline(always)]
 unsafe fn part1_inner(mut input: &[u8]) -> u32 {
     let mut nodes = vec![ArrayVec::<[u16; MAX_CONNECTIONS]>::new(); 26 * 26];
     let mut edges = vec![[false; 26 * 26]; 26 * 26];
@@ -49,6 +52,7 @@ unsafe fn part1_inner(mut input: &[u8]) -> u32 {
     sum
 }
 
+#[inline(always)]
 unsafe fn part2_inner(mut input: &[u8]) -> String {
     let mut nodes = vec![ArrayVec::<[u16; MAX_CONNECTIONS]>::new(); 26 * 26];
     let mut edges = vec![[false; 26 * 26]; 26 * 26];
