@@ -1,5 +1,8 @@
 #![expect(clippy::cast_possible_truncation, static_mut_refs)]
-use std::hint::{assert_unchecked, unreachable_unchecked};
+use std::{
+    hint::{assert_unchecked, unreachable_unchecked},
+    simd::{u8x32, Simd},
+};
 use tinyvec::ArrayVec;
 
 #[inline(always)]
@@ -81,6 +84,20 @@ static mut NODES: [ArrayVec<[u16; MAX_CONNECTIONS]>; 26 * 26] =
 #[inline(always)]
 unsafe fn parse(mut input: &[u8]) {
     NODES.fill(ArrayVec::from_array_empty([0; MAX_CONNECTIONS]));
+
+    while input.len() >= 32 {
+        let block = u8x32::from_array(input[..32].try_into().unwrap());
+        let block = block - Simd::splat(b'a');
+        for i in 0..5 {
+            let lhs = 26 * block[i * 6] as u16 + block[i * 6 + 1] as u16;
+            let rhs = 26 * block[i * 6 + 3] as u16 + block[i * 6 + 4] as u16;
+
+            let None = NODES[lhs as usize].try_push(rhs) else { unreachable_unchecked() };
+            let None = NODES[rhs as usize].try_push(lhs) else { unreachable_unchecked() };
+        }
+
+        input = &input[30..];
+    }
 
     while !input.is_empty() {
         assert_unchecked(input.len() >= 6);
