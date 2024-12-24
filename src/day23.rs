@@ -77,19 +77,11 @@ unsafe fn part2_inner(mut input: &[u8]) -> String {
     let mut clique = vec![];
     let mut longest = vec![];
 
-    let mut seen = [false; 26 * 26];
     for (a, neighbours) in (0u16..).zip(&nodes) {
         clique.push(a);
-        if seen[a as usize] {
-            break;
-        }
-        seen[a as usize] = true;
+
         for &b in neighbours {
-            if seen[b as usize] {
-                continue;
-            }
             if clique.iter().all(|&c| *edges.get_unchecked(b as usize).get_unchecked(c as usize)) {
-                seen[b as usize] = true;
                 clique.push(b);
             }
         }
