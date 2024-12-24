@@ -35,7 +35,8 @@ unsafe fn part1_inner(mut input: &[u8]) -> u32 {
     }
     let mut seen = [false; 26 * 26];
     let mut sum = 0;
-    for (a, neighbours) in (0u16..).zip(&nodes) {
+    for a in 494u16..520 {
+        let neighbours = &nodes[a as usize];
         seen[a as usize] = true;
         for (i, &b) in neighbours.iter().enumerate() {
             if seen[b as usize] {
@@ -45,7 +46,7 @@ unsafe fn part1_inner(mut input: &[u8]) -> u32 {
                 if seen[c as usize] || !edges[b as usize][c as usize] {
                     continue;
                 }
-                sum += [a, b, c].iter().any(|&x| (x / 26) == (b't' - b'a') as u16) as u32;
+                sum += 1;
             }
         }
     }
