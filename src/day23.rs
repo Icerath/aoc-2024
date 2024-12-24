@@ -12,7 +12,6 @@ pub fn part2(input: &str) -> &'static str {
     unsafe { part2_inner(input.as_bytes()) }
 }
 
-// FIXME: choose a logical number
 const MAX_CONNECTIONS: usize = 16;
 
 #[inline(always)]
