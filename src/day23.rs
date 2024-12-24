@@ -52,8 +52,8 @@ unsafe fn part2_inner(input: &[u8]) -> String {
             if *seen.get_unchecked(b as usize) {
                 continue;
             }
+            *seen.get_unchecked_mut(b as usize) = true;
             if clique.iter().all(|&c| *EDGES.get_unchecked(b as usize).get_unchecked(c as usize)) {
-                *seen.get_unchecked_mut(b as usize) = true;
                 clique.push(b);
             }
         }
