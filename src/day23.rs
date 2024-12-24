@@ -11,12 +11,16 @@ pub fn part2(input: &str) -> String {
 fn part1_inner(input: &[u8]) -> u32 {
     let input = &input[..input.len() - 1];
     let mut nodes = [const { vec![] }; 26 * 26];
+    let mut edges = vec![[false; 26 * 26]; 26 * 26];
     for line in input.split(|&b| b == b'\n') {
         let lhs = 26 * (line[0] - b'a') as u16 + (line[1] - b'a') as u16;
         let rhs = 26 * (line[3] - b'a') as u16 + (line[4] - b'a') as u16;
 
         nodes[lhs as usize].push(rhs);
         nodes[rhs as usize].push(lhs);
+
+        edges[lhs as usize][rhs as usize] = true;
+        edges[rhs as usize][lhs as usize] = true;
     }
     let mut seen = [false; 26 * 26];
     let mut sum = 0;
@@ -27,7 +31,7 @@ fn part1_inner(input: &[u8]) -> u32 {
                 continue;
             }
             for &c in &neighbours[i..] {
-                if seen[c as usize] || (!nodes[b as usize].contains(&c)) {
+                if seen[c as usize] || !edges[b as usize][c as usize] {
                     continue;
                 }
                 sum += [a, b, c].iter().any(|&x| (x / 26) == (b't' - b'a') as u16) as u32;
