@@ -1,4 +1,4 @@
-use rustc_hash::{FxHashMap as HashMap, FxHashSet as HashSet};
+use rustc_hash::FxHashMap as HashMap;
 
 pub fn part1(input: &str) -> u32 {
     part1_inner(input.as_bytes())
@@ -9,20 +9,28 @@ pub fn part2(input: &str) -> String {
 }
 
 fn part1_inner(input: &[u8]) -> u32 {
-    let nodes = parse(input);
-    let mut seen = HashSet::default();
+    let input = &input[..input.len() - 1];
+    let mut nodes = [const { vec![] }; 26 * 26];
+    for line in input.split(|&b| b == b'\n') {
+        let lhs = 26 * (line[0] - b'a') as u16 + (line[1] - b'a') as u16;
+        let rhs = 26 * (line[3] - b'a') as u16 + (line[4] - b'a') as u16;
+
+        nodes[lhs as usize].push(rhs);
+        nodes[rhs as usize].push(lhs);
+    }
+    let mut seen = [false; 26 * 26];
     let mut sum = 0;
-    for (&a, neighbours) in &nodes {
-        seen.insert(a);
-        for (i, b) in neighbours.iter().enumerate() {
-            if seen.contains(b) {
+    for (a, neighbours) in (0u16..).zip(&nodes) {
+        seen[a as usize] = true;
+        for (i, &b) in neighbours.iter().enumerate() {
+            if seen[b as usize] {
                 continue;
             }
-            for c in &neighbours[i..] {
-                if seen.contains(c) || (!nodes[b].contains(c)) {
+            for &c in &neighbours[i..] {
+                if seen[c as usize] || (!nodes[b as usize].contains(&c)) {
                     continue;
                 }
-                sum += [&a, b, c].iter().any(|x| x.to_ne_bytes()[0] == b't') as u32;
+                sum += [a, b, c].iter().any(|&x| (x / 26) == (b't' - b'a') as u16) as u32;
             }
         }
     }
