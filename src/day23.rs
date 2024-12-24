@@ -39,8 +39,8 @@ unsafe fn part1_inner(input: &[u8]) -> u32 {
 unsafe fn part2_inner(input: &[u8]) -> String {
     parse(input);
 
-    let mut clique = vec![];
-    let mut longest = vec![];
+    let mut longest = ArrayVec::<[u16; MAX_CONNECTIONS]>::new();
+    let mut clique = ArrayVec::<[u16; MAX_CONNECTIONS]>::new();
 
     let mut seen = [false; 26 * 26];
     for a in 0..(26 * 26) {
