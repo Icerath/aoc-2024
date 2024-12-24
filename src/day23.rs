@@ -16,25 +16,8 @@ pub fn part2(input: &str) -> String {
 const MAX_CONNECTIONS: usize = 32;
 
 #[inline(always)]
-unsafe fn part1_inner(mut input: &[u8]) -> u32 {
-    let mut nodes = vec![ArrayVec::<[u16; MAX_CONNECTIONS]>::new(); 26 * 26];
-    let mut edges = vec![[false; 26 * 26]; 26 * 26];
-    while !input.is_empty() {
-        assert_unchecked(input.len() >= 6);
-        let lhs = 26 * (input[0] - b'a') as u16 + (input[1] - b'a') as u16;
-        let rhs = 26 * (input[3] - b'a') as u16 + (input[4] - b'a') as u16;
-
-        assert_unchecked(lhs < 26 * 26);
-        assert_unchecked(rhs < 26 * 26);
-
-        let None = nodes[lhs as usize].try_push(rhs) else { unreachable_unchecked() };
-        let None = nodes[rhs as usize].try_push(lhs) else { unreachable_unchecked() };
-
-        edges[lhs as usize][rhs as usize] = true;
-        edges[rhs as usize][lhs as usize] = true;
-
-        input = &input[6..];
-    }
+unsafe fn part1_inner(input: &[u8]) -> u32 {
+    let (nodes, edges) = parse(input);
     let mut sum = 0;
     for a in 494u16..520 {
         for (i, &b) in nodes.get_unchecked(a as usize).iter().enumerate() {
@@ -53,26 +36,8 @@ unsafe fn part1_inner(mut input: &[u8]) -> u32 {
 }
 
 #[inline(always)]
-unsafe fn part2_inner(mut input: &[u8]) -> String {
-    let mut nodes = vec![ArrayVec::<[u16; MAX_CONNECTIONS]>::new(); 26 * 26];
-    let mut edges = vec![[false; 26 * 26]; 26 * 26];
-
-    while !input.is_empty() {
-        assert_unchecked(input.len() >= 6);
-        let lhs = 26 * (input[0] - b'a') as u16 + (input[1] - b'a') as u16;
-        let rhs = 26 * (input[3] - b'a') as u16 + (input[4] - b'a') as u16;
-
-        assert_unchecked(lhs < 26 * 26);
-        assert_unchecked(rhs < 26 * 26);
-
-        let None = nodes[lhs as usize].try_push(rhs) else { unreachable_unchecked() };
-        let None = nodes[rhs as usize].try_push(lhs) else { unreachable_unchecked() };
-
-        edges[lhs as usize][rhs as usize] = true;
-        edges[rhs as usize][lhs as usize] = true;
-
-        input = &input[6..];
-    }
+unsafe fn part2_inner(input: &[u8]) -> String {
+    let (nodes, edges) = parse(input);
 
     let mut clique = vec![];
     let mut longest = vec![];
@@ -107,6 +72,29 @@ unsafe fn part2_inner(mut input: &[u8]) -> String {
     }
     result.pop();
     String::from_utf8(result).unwrap()
+}
+
+unsafe fn parse(mut input: &[u8]) -> (Vec<ArrayVec<[u16; 32]>>, Vec<[bool; 26 * 26]>) {
+    let mut nodes = vec![ArrayVec::<[u16; MAX_CONNECTIONS]>::new(); 26 * 26];
+    let mut edges = vec![[false; 26 * 26]; 26 * 26];
+
+    while !input.is_empty() {
+        assert_unchecked(input.len() >= 6);
+        let lhs = 26 * (input[0] - b'a') as u16 + (input[1] - b'a') as u16;
+        let rhs = 26 * (input[3] - b'a') as u16 + (input[4] - b'a') as u16;
+
+        assert_unchecked(lhs < 26 * 26);
+        assert_unchecked(rhs < 26 * 26);
+
+        let None = nodes[lhs as usize].try_push(rhs) else { unreachable_unchecked() };
+        let None = nodes[rhs as usize].try_push(lhs) else { unreachable_unchecked() };
+
+        edges[lhs as usize][rhs as usize] = true;
+        edges[rhs as usize][lhs as usize] = true;
+
+        input = &input[6..];
+    }
+    (nodes, edges)
 }
 
 pub const PART1_OUT: u32 = 1083;
