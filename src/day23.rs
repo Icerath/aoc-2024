@@ -73,9 +73,13 @@ unsafe fn part2_inner(mut input: &[u8]) -> String {
 
     let mut clique = vec![];
     let mut longest = vec![];
+
     for (a, neighbours) in (0u16..).zip(&nodes) {
         clique.push(a);
         for &b in neighbours {
+            if b < a {
+                continue;
+            }
             if clique.iter().all(|&c| edges[b as usize][c as usize]) {
                 clique.push(b);
             }
