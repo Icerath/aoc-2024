@@ -34,12 +34,11 @@ unsafe fn part1_inner(mut input: &[u8]) -> u32 {
     }
     let mut sum = 0;
     for a in 494u16..520 {
-        let neighbours = &nodes.get_unchecked(a as usize);
-        for (i, &b) in neighbours.iter().enumerate() {
+        for (i, &b) in nodes.get_unchecked(a as usize).iter().enumerate() {
             if b >= 494 && b < a {
                 continue;
             }
-            for &c in &neighbours[i + 1..] {
+            for &c in nodes.get_unchecked(a as usize).get_unchecked(i + 1..) {
                 if c >= 494 && c < a || !edges.get_unchecked(b as usize).get_unchecked(c as usize) {
                     continue;
                 }
