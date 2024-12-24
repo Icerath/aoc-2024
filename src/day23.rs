@@ -52,6 +52,8 @@ unsafe fn part1_inner(mut input: &[u8]) -> u32 {
 
 unsafe fn part2_inner(mut input: &[u8]) -> String {
     let mut nodes = vec![ArrayVec::<[u16; MAX_CONNECTIONS]>::new(); 26 * 26];
+    let mut edges = vec![[false; 26 * 26]; 26 * 26];
+
     while !input.is_empty() {
         assert_unchecked(input.len() >= 6);
         let lhs = 26 * (input[0] - b'a') as u16 + (input[1] - b'a') as u16;
@@ -63,6 +65,9 @@ unsafe fn part2_inner(mut input: &[u8]) -> String {
         let None = nodes[lhs as usize].try_push(rhs) else { unreachable_unchecked() };
         let None = nodes[rhs as usize].try_push(lhs) else { unreachable_unchecked() };
 
+        edges[lhs as usize][rhs as usize] = true;
+        edges[rhs as usize][lhs as usize] = true;
+
         input = &input[6..];
     }
 
@@ -70,9 +75,9 @@ unsafe fn part2_inner(mut input: &[u8]) -> String {
     let mut longest = vec![];
     for (a, neighbours) in (0u16..).zip(&nodes) {
         clique.push(a);
-        for b in neighbours {
-            if clique.iter().all(|c| nodes[*b as usize].contains(c)) {
-                clique.push(*b);
+        for &b in neighbours {
+            if clique.iter().all(|&c| edges[b as usize][c as usize]) {
+                clique.push(b);
             }
         }
         if clique.len() > longest.len() {
