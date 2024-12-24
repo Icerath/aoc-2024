@@ -74,6 +74,7 @@ unsafe fn part2_inner(input: &[u8]) -> String {
     String::from_utf8(result).unwrap()
 }
 
+#[inline(always)]
 unsafe fn parse(mut input: &[u8]) -> (Vec<ArrayVec<[u16; 32]>>, Vec<[bool; 26 * 26]>) {
     let mut nodes = vec![ArrayVec::<[u16; MAX_CONNECTIONS]>::new(); 26 * 26];
     let mut edges = vec![[false; 26 * 26]; 26 * 26];
