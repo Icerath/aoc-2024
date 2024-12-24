@@ -39,7 +39,7 @@ unsafe fn part1_inner(mut input: &[u8]) -> u32 {
             if b >= 494 && b < a {
                 continue;
             }
-            for &c in &neighbours[i..] {
+            for &c in &neighbours[i + 1..] {
                 if c >= 494 && c < a || !edges.get_unchecked(b as usize).get_unchecked(c as usize) {
                     continue;
                 }
