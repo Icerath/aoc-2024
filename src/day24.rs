@@ -126,7 +126,7 @@ unsafe fn part2_inner(mut input: &[u8]) -> &'static str {
                 }
             }
             b'X' if first_char(output) != b'z' => {
-                swapped.push(output);
+                let None = swapped.try_push(output) else { unreachable_unchecked() };
             }
             _ => {}
         }
