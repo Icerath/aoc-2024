@@ -23,7 +23,7 @@ macro_rules! test_day {
     };
 }
 
-test_day!(day23);
+test_day!(day24);
 
 #[cfg(test)]
 static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
