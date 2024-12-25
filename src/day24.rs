@@ -1,6 +1,5 @@
 #![expect(clippy::cast_possible_truncation, static_mut_refs, clippy::items_after_statements)]
 use std::hint::{assert_unchecked, unreachable_unchecked};
-use tinyvec::ArrayVec;
 
 #[inline(always)]
 pub fn part1(input: &str) -> u64 {
@@ -111,23 +110,24 @@ unsafe fn part2_inner(mut input: &[u8]) -> &'static str {
         };
     }
 
-    let mut swapped = ArrayVec::<[u16; 8]>::new();
+    let mut swapped = [0u16; 8];
+    let mut swapped_len = 0u16;
+    macro_rules! push_swapped {
+        ($output: expr) => {{
+            *swapped.get_unchecked_mut(swapped_len as usize) = $output;
+            swapped_len += 1;
+        }};
+    }
     for &(lhs, op, rhs, output) in GATES.get_unchecked(..num_gates) {
         match op {
-            b'O' if first_char(output) == b'z' && output != Z45 => {
-                let None = swapped.try_push(output) else { unreachable_unchecked() };
-            }
-            b'A' if lhs != X00 && rhs != X00 && !ORS.get_unchecked(output as usize) => {
-                let None = swapped.try_push(output) else { unreachable_unchecked() };
-            }
+            b'O' if first_char(output) == b'z' && output != Z45 => push_swapped!(output),
+            b'A' if lhs != X00 && rhs != X00 && !ORS.get_unchecked(output as usize) => push_swapped!(output),
             b'X' if first_char(lhs) == b'x' || first_char(rhs) == b'x' => {
                 if lhs != X00 && rhs != X00 && !XORS.get_unchecked(output as usize) {
-                    let None = swapped.try_push(output) else { unreachable_unchecked() };
+                    push_swapped!(output);
                 }
             }
-            b'X' if first_char(output) != b'z' => {
-                let None = swapped.try_push(output) else { unreachable_unchecked() };
-            }
+            b'X' if first_char(output) != b'z' => push_swapped!(output),
             _ => {}
         }
     }
