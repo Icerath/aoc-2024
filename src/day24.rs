@@ -15,15 +15,15 @@ macro_rules! parse_gate_connections {
     ($input: ident) => {{
         assert_unchecked($input.len() >= 18);
         let lhs = compress_gate($input);
-        let op = $input[4];
+        let op = *$input.get_unchecked(4);
         $input = match op {
-            b'O' => &$input[7..],
-            b'A' | b'X' => &$input[8..],
+            b'O' => &$input.get_unchecked(7..),
+            b'A' | b'X' => &$input.get_unchecked(8..),
             _ => unreachable_unchecked(),
         };
         let rhs = compress_gate($input);
-        let output = compress_gate(&$input[7..]);
-        $input = &$input[11..];
+        let output = compress_gate(&$input.get_unchecked(7..));
+        $input = $input.get_unchecked(11..);
         (lhs, op, rhs, output)
     }};
 }
@@ -95,7 +95,7 @@ unsafe fn part2_inner(mut input: &[u8]) -> &'static str {
     let mut num_gates = 0;
     while !input.is_empty() {
         let (lhs, op, rhs, output) = parse_gate_connections!(input);
-        GATES[num_gates] = (lhs, op, rhs, output);
+        *GATES.get_unchecked_mut(num_gates) = (lhs, op, rhs, output);
         num_gates += 1;
         macro_rules! insert {
             ($lookup: ident) => {{
