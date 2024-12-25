@@ -114,16 +114,20 @@ unsafe fn part2_inner(mut input: &[u8]) -> &'static str {
     let mut swapped = ArrayVec::<[u16; 8]>::new();
     for &(lhs, op, rhs, output) in GATES.get_unchecked(..num_gates) {
         match op {
-            b'O' if first_char(output) == b'z' && output != Z45 => swapped.push(output),
+            b'O' if first_char(output) == b'z' && output != Z45 => {
+                let None = swapped.try_push(output) else { unreachable_unchecked() };
+            }
             b'A' if lhs != X00 && rhs != X00 && !ORS.get_unchecked(output as usize) => {
-                swapped.push(output);
+                let None = swapped.try_push(output) else { unreachable_unchecked() };
             }
             b'X' if first_char(lhs) == b'x' || first_char(rhs) == b'x' => {
                 if lhs != X00 && rhs != X00 && !XORS.get_unchecked(output as usize) {
-                    swapped.push(output);
+                    let None = swapped.try_push(output) else { unreachable_unchecked() };
                 }
             }
-            b'X' if first_char(output) != b'z' => swapped.push(output),
+            b'X' if first_char(output) != b'z' => {
+                swapped.push(output);
+            }
             _ => {}
         }
     }
