@@ -51,7 +51,6 @@ unsafe fn part1_inner(mut input: &[u8]) -> u64 {
         let rhs = *IDS.get_unchecked_mut(rhs as usize).get_or_insert(id + 1);
         let output = *IDS.get_unchecked_mut(output as usize).get_or_insert(id + 2);
         id += 3;
-
         *OPS.get_unchecked_mut(output as usize) = (lhs, op, rhs);
     }
     let mut result = 0u64;
@@ -70,8 +69,8 @@ unsafe fn dfs(key: u16) -> bool {
     }
     let (lhs, op, rhs) = *OPS.get_unchecked(key as usize);
     let value = match op {
-        b'O' => dfs(lhs) | dfs(rhs),
-        b'A' => dfs(lhs) & dfs(rhs),
+        b'O' => dfs(lhs) || dfs(rhs),
+        b'A' => dfs(lhs) && dfs(rhs),
         b'X' => dfs(lhs) ^ dfs(rhs),
         _ => unreachable_unchecked(),
     };
