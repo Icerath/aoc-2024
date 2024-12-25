@@ -2,10 +2,12 @@
 use std::hint::{assert_unchecked, unreachable_unchecked};
 use tinyvec::ArrayVec;
 
+#[inline(always)]
 pub fn part1(input: &str) -> u64 {
     unsafe { part1_inner(input.as_bytes()) }
 }
 
+#[inline(always)]
 pub fn part2(input: &str) -> &'static str {
     unsafe { part2_inner(input.as_bytes()) }
 }
@@ -31,6 +33,7 @@ static mut IDS: [Option<u16>; ZEDS[0] as usize + 1] = [None; ZEDS[0] as usize + 
 static mut GATES: [Option<bool>; ZEDS[0] as usize + 1] = [None; ZEDS[0] as usize + 1];
 static mut OPS: [(u16, u8, u16); ZEDS[0] as usize + 1] = [(0, 0, 0); ZEDS[0] as usize + 1];
 
+#[inline(always)]
 unsafe fn part1_inner(mut input: &[u8]) -> u64 {
     let mut num_gates = 0;
     while *input.get_unchecked(0) != b'\n' {
@@ -82,6 +85,7 @@ pub const PART2_OUT: &str = "cph,gws,hgj,nnt,npf,z13,z19,z33";
 static mut XORS: [bool; ZEDS[0] as usize + 1] = [false; ZEDS[0] as usize + 1];
 static mut ORS: [bool; ZEDS[0] as usize + 1] = [false; ZEDS[0] as usize + 1];
 
+#[inline(always)]
 unsafe fn part2_inner(mut input: &[u8]) -> &'static str {
     static mut GATES: [(u16, u8, u16, u16); 1024] = [(0, 0, 0, 0); 1024];
     while *input.get_unchecked(7) != b'\n' {
