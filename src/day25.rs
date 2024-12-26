@@ -3,6 +3,7 @@
 pub fn part1(input: &str) -> u32 {
     unsafe { part1_inner(input.as_bytes()) }
 }
+
 unsafe fn part1_inner(mut input: &[u8]) -> u32 {
     static mut LOCKS: [u32; 250] = [0; 250];
     static mut KEYS: [u32; 250] = [0; 250];
@@ -12,13 +13,13 @@ unsafe fn part1_inner(mut input: &[u8]) -> u32 {
     loop {
         let mut bits = 0;
         for i in 0..30 {
-            bits |= ((input[i + 6] == b'#') as u32) << i;
+            bits |= ((*input.get_unchecked(i + 6) == b'#') as u32) << i;
         }
         if input[0] == b'#' {
-            LOCKS[num_locks] = bits;
+            *LOCKS.get_unchecked_mut(num_locks) = bits;
             num_locks += 1;
         } else {
-            KEYS[num_keys] = bits;
+            *KEYS.get_unchecked_mut(num_keys) = bits;
             num_keys += 1;
         }
         input = match input.get(43..) {
