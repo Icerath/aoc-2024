@@ -11,19 +11,19 @@ macro_rules! test_day {
                 );
             }
 
-            #[test]
-            fn part2() {
-                let _guard = super::LOCK.lock();
-                assert_eq!(
-                    $day::part2(include_str!(concat!("../input/", stringify!($day), ".txt"))),
-                    $day::PART2_OUT
-                );
-            }
+            // #[test]
+            // fn part2() {
+            //     let _guard = super::LOCK.lock();
+            //     assert_eq!(
+            //         $day::part2(include_str!(concat!("../input/", stringify!($day), ".txt"))),
+            //         $day::PART2_OUT
+            //     );
+            // }
         }
     };
 }
 
-test_day!(day24);
+test_day!(day25);
 
 #[cfg(test)]
 static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
