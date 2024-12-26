@@ -3,31 +3,28 @@
 use std::simd::{cmp::SimdPartialEq, u8x32, Simd};
 
 pub fn part1(input: &str) -> u32 {
-    unsafe { part1_inner(input.as_bytes()) }
+    unsafe { part1_inner(input.as_ptr()) }
 }
 
-unsafe fn part1_inner(mut input: &[u8]) -> u32 {
+unsafe fn part1_inner(mut input: *const u8) -> u32 {
     static mut LOCKS: [u32; 250] = [0; 250];
     static mut KEYS: [u32; 250] = [0; 250];
 
     let mut num_locks = 0;
     let mut num_keys = 0;
-    loop {
-        let block = input.as_ptr().add(6).cast::<u8x32>().read_unaligned();
+    for _ in 0..500 {
+        let block = input.add(6).cast::<u8x32>().read_unaligned();
         let mut bits = block.simd_eq(Simd::splat(b'#')).to_bitmask() as u32;
         bits &= (1 << 30) - 1;
 
-        if *input.get_unchecked(0) == b'#' {
+        if *input == b'#' {
             *LOCKS.get_unchecked_mut(num_locks) = bits;
             num_locks += 1;
         } else {
             *KEYS.get_unchecked_mut(num_keys) = bits;
             num_keys += 1;
         }
-        input = match input.get(43..) {
-            Some(input) => input,
-            None => break,
-        };
+        input = input.wrapping_add(43);
     }
     let mut num_matching = 0;
     for lock in &LOCKS {
