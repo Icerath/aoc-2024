@@ -2,10 +2,12 @@
 
 use std::simd::{cmp::SimdPartialEq, u8x32, Simd};
 
+#[inline(always)]
 pub fn part1(input: &str) -> u32 {
     unsafe { part1_inner(input.as_ptr()) }
 }
 
+#[inline(always)]
 unsafe fn part1_inner(mut input: *const u8) -> u32 {
     static mut LOCKS: [u32; 250] = [0; 250];
     static mut KEYS: [u32; 250] = [0; 250];
