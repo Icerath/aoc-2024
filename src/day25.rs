@@ -14,8 +14,7 @@ unsafe fn part1_inner(mut input: *const u8) -> u32 {
     let mut num_keys = 0;
     for _ in 0..500 {
         let block = input.add(6).cast::<u8x32>().read_unaligned();
-        let mut bits = block.simd_eq(Simd::splat(b'#')).to_bitmask() as u32;
-        bits &= (1 << 30) - 1;
+        let bits = block.simd_eq(Simd::splat(b'#')).to_bitmask() as u32;
 
         if *input == b'#' {
             *LOCKS.get_unchecked_mut(num_locks) = bits;
