@@ -1,4 +1,6 @@
-#![expect(static_mut_refs)]
+#![expect(static_mut_refs, clippy::cast_possible_truncation)]
+
+use std::simd::{cmp::SimdPartialEq, u8x32, Simd};
 
 pub fn part1(input: &str) -> u32 {
     unsafe { part1_inner(input.as_bytes()) }
@@ -11,10 +13,10 @@ unsafe fn part1_inner(mut input: &[u8]) -> u32 {
     let mut num_locks = 0;
     let mut num_keys = 0;
     loop {
-        let mut bits = 0;
-        for i in 0..30 {
-            bits |= ((*input.get_unchecked(i + 6) == b'#') as u32) << i;
-        }
+        let block = input.as_ptr().add(6).cast::<u8x32>().read_unaligned();
+        let mut bits = block.simd_eq(Simd::splat(b'#')).to_bitmask() as u32;
+        bits &= (1 << 30) - 1;
+
         if input[0] == b'#' {
             *LOCKS.get_unchecked_mut(num_locks) = bits;
             num_locks += 1;

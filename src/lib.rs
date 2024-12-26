@@ -1,5 +1,5 @@
 // #![feature(array_windows)]
-// #![feature(portable_simd)]
+#![feature(portable_simd)]
 // #![feature(iter_array_chunks)]
 // pub mod day1;
 // pub mod day2;
